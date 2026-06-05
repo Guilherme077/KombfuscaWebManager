@@ -70,6 +70,28 @@ namespace KombfuscaWebManager.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Cups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Placename = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    SubscriptionFee = table.Column<double>(type: "double", nullable: false),
+                    cupStatus = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cups", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -196,6 +218,86 @@ namespace KombfuscaWebManager.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "Participations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CupId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Participations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Participations_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Participations_Cups_CupId",
+                        column: x => x.CupId,
+                        principalTable: "Cups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Periods",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PaperNumber = table.Column<int>(type: "int", nullable: false),
+                    CopaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Periods", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Periods_Cups_CopaId",
+                        column: x => x.CopaId,
+                        principalTable: "Cups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ScoreSheets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Fusca = table.Column<int>(type: "int", nullable: false),
+                    Kombi = table.Column<int>(type: "int", nullable: false),
+                    NewBeetle = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PeriodId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ScoreSheets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ScoreSheets_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ScoreSheets_Periods_PeriodId",
+                        column: x => x.PeriodId,
+                        principalTable: "Periods",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -232,6 +334,31 @@ namespace KombfuscaWebManager.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Participations_CupId",
+                table: "Participations",
+                column: "CupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Participations_UserId",
+                table: "Participations",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Periods_CopaId",
+                table: "Periods",
+                column: "CopaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ScoreSheets_PeriodId",
+                table: "ScoreSheets",
+                column: "PeriodId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ScoreSheets_UserId",
+                table: "ScoreSheets",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -253,10 +380,22 @@ namespace KombfuscaWebManager.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Participations");
+
+            migrationBuilder.DropTable(
+                name: "ScoreSheets");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Periods");
+
+            migrationBuilder.DropTable(
+                name: "Cups");
         }
     }
 }
