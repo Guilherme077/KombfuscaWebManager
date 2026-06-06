@@ -6,6 +6,8 @@
 
         public int PaperNumber { get; set; }
 
+        public string? Description { get; set; } = string.Empty;
+
         public int CopaId { get; set; }
 
         public Cup? Copa { get; set; }

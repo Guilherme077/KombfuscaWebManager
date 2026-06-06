@@ -57,7 +57,7 @@ namespace KombfuscaWebManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PaperNumber,CopaId")] Period period)
+        public async Task<IActionResult> Create([Bind("Id,PaperNumber,Description,CopaId")] Period period)
         {
             // Validação manual
             if (period.PaperNumber <= 0)
@@ -110,7 +110,7 @@ namespace KombfuscaWebManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PaperNumber,CopaId")] Period period)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,PaperNumber,Description,CopaId")] Period period)
         {
             if (id != period.Id)
             {

@@ -16,6 +16,9 @@
                 @Html.DisplayNameFor(model => model.PaperNumber)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Copa)
             </th>
             <th></th>
@@ -28,7 +31,10 @@
                 @Html.DisplayFor(modelItem => item.PaperNumber)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Copa.Id)
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Copa.Name)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

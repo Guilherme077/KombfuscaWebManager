@@ -15,14 +15,16 @@ namespace KombfuscaWebManager.Models.CupModels
 
         public string UserId { get; set; } = string.Empty;
 
-        public ApplicationUser User { get; set; } = null!;
+        public ApplicationUser? User { get; set; }
 
         public string CreatedByUserId { get; set; } = string.Empty;
 
-        public ApplicationUser CreatedByUser { get; set; } = null!;
+        public ApplicationUser? CreatedByUser { get; set; }
 
         public int PeriodId { get; set; }
 
-        public Period Period { get; set; } = null!;
+        public Period? Period { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

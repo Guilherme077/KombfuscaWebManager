@@ -24,9 +24,73 @@ namespace KombfuscaWebManager.Controllers
             _httpClient = httpClient;
         }
         
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null) return Unauthorized();
+
+            // Get all cups with their periods
+            var cupsWithPeriods = await _context.Cups
+                .Include(c => c.Periods)
+                .OrderByDescending(c => c.StartDate)
+                .ToListAsync();
+
+            // Get all score sheets created by this user
+            var userScoreSheets = await _context.ScoreSheets
+                .Where(s => s.CreatedByUserId == userId)
+                .Select(s => s.PeriodId)
+                .ToListAsync();
+
+            var model = new ScoreIndexViewModel();
+
+            foreach (var cup in cupsWithPeriods)
+            {
+                var cupGroup = new CupGroupViewModel
+                {
+                    CupId = cup.Id,
+                    CupName = cup.Name
+                };
+
+                foreach (var period in cup.Periods.OrderBy(p => p.PaperNumber))
+                {
+                    var hasScore = userScoreSheets.Contains(period.Id);
+
+                    var periodViewModel = new PeriodScoreViewModel
+                    {
+                        PeriodId = period.Id,
+                        PaperNumber = period.PaperNumber,
+                        CupId = cup.Id,
+                        Description = period.Description,
+                        HasScore = hasScore
+                    };
+
+                    if (hasScore)
+                    {
+                        var scoreSheet = await _context.ScoreSheets
+                            .Where(s => s.PeriodId == period.Id && s.CreatedByUserId == userId)
+                            .FirstOrDefaultAsync();
+
+                        if (scoreSheet != null)
+                        {
+                            periodViewModel.ScoreCreatedAt = scoreSheet.CreatedAt;
+                        }
+
+                        cupGroup.CompletedPeriods.Add(periodViewModel);
+                    }
+                    else
+                    {
+                        cupGroup.PendingPeriods.Add(periodViewModel);
+                    }
+                }
+
+                if (cupGroup.PendingPeriods.Any() || cupGroup.CompletedPeriods.Any())
+                {
+                    model.CupGroups.Add(cupGroup);
+                }
+            }
+
+            return View(model);
         }
 
         [HttpGet]
