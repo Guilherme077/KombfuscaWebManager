@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KombfuscaWebManager.Data;
 using KombfuscaWebManager.Models.CupModels;
+using KombfuscaWebManager.Models.CupModels.ViewModels;
+using System.Security.Claims;
 
 namespace KombfuscaWebManager.Controllers
 {
@@ -178,6 +180,102 @@ namespace KombfuscaWebManager.Controllers
         private bool ParticipationExists(int id)
         {
             return _context.Participations.Any(e => e.Id == id);
+        }
+
+        // GET: Participations/CupSubscription/5
+        public async Task<IActionResult> CupSubscription(int? cupId)
+        {
+            if (cupId == null)
+            {
+                return NotFound();
+            }
+
+            var cup = await _context.Cups.FindAsync(cupId);
+            if (cup == null)
+            {
+                return NotFound();
+            }
+
+            var model = new CupSubscriptionViewModel
+            {
+                CupId = cup.Id,
+                CupName = cup.Name,
+                Placename = cup.Placename,
+                StartDate = cup.StartDate,
+                EndDate = cup.EndDate,
+                Year = cup.Year,
+                SubscriptionFee = cup.SubscriptionFee,
+                CupStatus = cup.cupStatus.ToString()
+            };
+
+            return View(model);
+        }
+
+        // POST: Participations/CupSubscription
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CupSubscription(CupSubscriptionViewModel model)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // Verificar se o usuário já está inscrito nesta copa
+            var existingParticipation = await _context.Participations
+                .FirstOrDefaultAsync(p => p.CupId == model.CupId && p.UserId == userId);
+
+            if (existingParticipation != null)
+            {
+                ModelState.AddModelError("", "Você já está inscrito nesta copa.");
+                return View(model);
+            }
+
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrWhiteSpace(model.TeamName))
+                {
+                    ModelState.AddModelError("TeamName", "O nome do time é obrigatório.");
+                    return View(model);
+                }
+
+                try
+                {
+                    var participation = new Participation
+                    {
+                        CupId = model.CupId,
+                        UserId = userId,
+                        TeamName = model.TeamName
+                    };
+
+                    _context.Add(participation);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Inscrição na copa realizada com sucesso!";
+                    return RedirectToAction("Index", "Cups");
+                }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", "Erro ao salvar a inscrição. " + ex.InnerException?.Message);
+                }
+            }
+
+            // Recarregar dados da copa para exibir na view em caso de erro
+            var cup = await _context.Cups.FindAsync(model.CupId);
+            if (cup != null)
+            {
+                model.CupName = cup.Name;
+                model.Placename = cup.Placename;
+                model.StartDate = cup.StartDate;
+                model.EndDate = cup.EndDate;
+                model.Year = cup.Year;
+                model.SubscriptionFee = cup.SubscriptionFee;
+                model.CupStatus = cup.cupStatus.ToString();
+            }
+
+            return View(model);
         }
     }
 }
