@@ -1,0 +1,87 @@
+﻿@using KombfuscaWebManager.Models.CupModels.ViewModels
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model ScoreConfirmationViewModel
+
+<h2>Confirmar Pontuações</h2>
+
+<form asp-action="SaveScoreSheet" method="post">
+
+    <input type="hidden"
+           asp-for="PeriodId" />
+
+    <table class="table">
+
+        <thead>
+
+            <tr>
+
+                <th>Jogador</th>
+
+                <th>Fusca</th>
+
+                <th>Kombi</th>
+
+                <th>New Beetle</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @for (int i = 0; i < Model.Players.Count; i++)
+            {
+
+                <tr>
+
+                    <td>
+
+                        @Model.Players[i].Name
+
+                        <input type="hidden"
+                               asp-for="Players[i].UserId" />
+
+                        <input type="hidden"
+                               asp-for="Players[i].Name" />
+
+                    </td>
+
+                    <td>
+
+                        <input asp-for="Players[i].Fusca"
+                               class="form-control" />
+
+                    </td>
+
+                    <td>
+
+                        <input asp-for="Players[i].Kombi"
+                               class="form-control" />
+
+                    </td>
+
+                    <td>
+
+                        <input asp-for="Players[i].NewBeetle"
+                               class="form-control" />
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+    <button class="btn btn-success">
+        Confirmar a pontuação
+    </button>
+
+</form>

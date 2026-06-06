@@ -22,5 +22,22 @@ namespace KombfuscaWebManager.Data
         public DbSet<ScoreSheet> ScoreSheets { get; set; }
 
         public DbSet<Participation> Participations { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<ScoreSheet>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ScoreSheet>()
+                .HasOne(p => p.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(p => p.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }

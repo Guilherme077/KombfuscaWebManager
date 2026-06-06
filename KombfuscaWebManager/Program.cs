@@ -1,5 +1,6 @@
 using KombfuscaWebManager.Data;
 using KombfuscaWebManager.Models;
+using KombfuscaWebManager.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient<ScoreService>();
 
 var app = builder.Build();
 
