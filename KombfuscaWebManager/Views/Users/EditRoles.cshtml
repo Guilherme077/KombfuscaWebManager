@@ -1,0 +1,27 @@
+﻿@using KombfuscaWebManager.Models.UsersModels.ViewModels
+@model EditRolesViewModel
+
+<h2>@Model.UserName</h2>
+
+<form asp-action="EditRoles" method="post">
+
+    <input asp-for="UserId" type="hidden" />
+
+    <div>
+        <input asp-for="Admin" />
+        <label asp-for="Admin"></label>
+    </div>
+
+    <div>
+        <input asp-for="ScoreCounter" />
+        <label asp-for="ScoreCounter"></label>
+    </div>
+
+    <div>
+        <input asp-for="Player" />
+        <label asp-for="Player"></label>
+    </div>
+
+    <button class="btn btn-success">Salvar</button>
+
+</form>
