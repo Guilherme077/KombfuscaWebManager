@@ -23,6 +23,8 @@ namespace KombfuscaWebManager.Data
 
         public DbSet<Participation> Participations { get; set; }
 
+        public DbSet<CupAssignment> CupAssignments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -38,6 +40,18 @@ namespace KombfuscaWebManager.Data
                 .WithMany()
                 .HasForeignKey(p => p.CreatedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<CupAssignment>()
+                .HasOne(ca => ca.Cup)
+                .WithMany(c => c.Assignments)
+                .HasForeignKey(ca => ca.CupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<CupAssignment>()
+                .HasOne(ca => ca.User)
+                .WithMany(u => u.CupAssignments)
+                .HasForeignKey(ca => ca.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

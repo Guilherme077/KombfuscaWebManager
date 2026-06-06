@@ -10,4 +10,7 @@ public class ApplicationUser : IdentityUser
 
     public ICollection<Participation> Participations { get; set; }
         = new List<Participation>();
+
+    public ICollection<CupAssignment> CupAssignments { get; set; }
+        = new List<CupAssignment>();
 }

@@ -3,6 +3,7 @@ using KombfuscaWebManager.Models.CupModels;
 using KombfuscaWebManager.Models.CupModels.ViewModels;
 using KombfuscaWebManager.Services;
 using KombfuscaWebManager.Services.dto;
+using KombfuscaWebManager.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -30,9 +31,34 @@ namespace KombfuscaWebManager.Controllers
 
             if (userId == null) return Unauthorized();
 
-            // Get all cups with their periods
-            var cupsWithPeriods = await _context.Cups
-                .Include(c => c.Periods)
+            // Check if user is admin
+            bool isAdmin = User.IsInRole("Admin");
+
+            // Get assigned cup IDs for this user
+            var assignedCupIds = new List<int>();
+            if (!isAdmin)
+            {
+                assignedCupIds = await _context.CupAssignments
+                    .Where(ca => ca.UserId == userId)
+                    .Select(ca => ca.CupId)
+                    .ToListAsync();
+
+                // If user has no assignments and is not admin, show empty list
+                if (assignedCupIds.Count == 0)
+                {
+                    var emptyModel = new ScoreIndexViewModel();
+                    return View(emptyModel);
+                }
+            }
+
+            // Get cups - filter by assignment if user is not admin
+            IQueryable<Cup> cupsQuery = _context.Cups.Include(c => c.Periods);
+            if (!isAdmin)
+            {
+                cupsQuery = cupsQuery.Where(c => assignedCupIds.Contains(c.Id));
+            }
+
+            var cupsWithPeriods = await cupsQuery
                 .OrderByDescending(c => c.StartDate)
                 .ToListAsync();
 
@@ -94,8 +120,29 @@ namespace KombfuscaWebManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult RegisterScore(int periodId)
+        public async Task<IActionResult> RegisterScore(int periodId)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            // Check authorization
+            bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin)
+            {
+                // Get cup ID for this period
+                var period = await _context.Periods.FindAsync(periodId);
+                if (period == null) return NotFound();
+
+                // Check if user has assignment to this cup
+                var assignment = await _context.CupAssignments
+                    .AnyAsync(ca => ca.CupId == period.CopaId && ca.UserId == userId);
+
+                if (!assignment)
+                {
+                    return Forbid();
+                }
+            }
+
             ViewBag.PeriodId = periodId;
             return View();
         }
@@ -114,6 +161,24 @@ namespace KombfuscaWebManager.Controllers
             string? uploadUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (uploadUserId == null) return Unauthorized();
+
+            // Check authorization
+            bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin)
+            {
+                // Get cup ID for this period
+                var periodInfo = await _context.Periods.FindAsync(periodId);
+                if (periodInfo == null) return NotFound();
+
+                // Check if user has assignment to this cup
+                var assignment = await _context.CupAssignments
+                    .AnyAsync(ca => ca.CupId == periodInfo.CopaId && ca.UserId == uploadUserId);
+
+                if (!assignment)
+                {
+                    return Forbid();
+                }
+            }
 
 
             //Connect to API

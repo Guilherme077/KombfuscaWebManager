@@ -7,16 +7,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KombfuscaWebManager.Data;
 using KombfuscaWebManager.Models.CupModels;
+using KombfuscaWebManager.Models.CupModels.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using KombfuscaWebManager.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KombfuscaWebManager.Controllers
 {
     public class CupsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CupsController(ApplicationDbContext context)
+        public CupsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Cups
@@ -152,6 +158,90 @@ namespace KombfuscaWebManager.Controllers
         private bool CupExists(int id)
         {
             return _context.Cups.Any(e => e.Id == id);
+        }
+
+        // GET: Cups/ManageAssignments/5
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> ManageAssignments(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var cup = await _context.Cups.FindAsync(id);
+            if (cup == null)
+            {
+                return NotFound();
+            }
+
+            var assignedUserIds = await _context.CupAssignments
+                .Where(ca => ca.CupId == id)
+                .Select(ca => ca.UserId)
+                .ToListAsync();
+
+            var allUsers = await _userManager.Users.ToListAsync();
+
+            var userAssignments = allUsers
+                .Select(u => new UserAssignmentViewModel
+                {
+                    UserId = u.Id,
+                    UserName = u.UserName ?? string.Empty,
+                    UserEmail = u.Email ?? string.Empty,
+                    IsAssigned = assignedUserIds.Contains(u.Id)
+                })
+                .OrderBy(u => u.UserName)
+                .ToList();
+
+            var model = new CupAssignmentViewModel
+            {
+                CupId = cup.Id,
+                CupName = cup.Name,
+                UserAssignments = userAssignments
+            };
+
+            return View(model);
+        }
+
+        // POST: Cups/ManageAssignments/5
+        [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManageAssignments(int id, CupAssignmentViewModel model)
+        {
+            if (id != model.CupId)
+            {
+                return NotFound();
+            }
+
+            var cup = await _context.Cups.FindAsync(id);
+            if (cup == null)
+            {
+                return NotFound();
+            }
+
+            // Get current assignments
+            var currentAssignments = await _context.CupAssignments
+                .Where(ca => ca.CupId == id)
+                .ToListAsync();
+
+            // Remove all current assignments
+            _context.CupAssignments.RemoveRange(currentAssignments);
+
+            // Add new assignments based on form selection
+            foreach (var userAssignment in model.UserAssignments.Where(ua => ua.IsAssigned))
+            {
+                var assignment = new CupAssignment
+                {
+                    CupId = id,
+                    UserId = userAssignment.UserId,
+                    AssignedAt = DateTime.UtcNow
+                };
+                _context.CupAssignments.Add(assignment);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

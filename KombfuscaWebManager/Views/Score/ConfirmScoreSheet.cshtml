@@ -8,6 +8,7 @@
 @model ScoreConfirmationViewModel
 
 <h2>Confirmar Pontuações</h2>
+<p class="text-muted small">Atribua os jogadores a cada pontuação. <br /> Verifique se os números parecem coincidir. <br/> A ordem da lista abaixo é a mesma da folha.</p>
 
 <form asp-action="SaveScoreSheet" method="post">
 
@@ -19,6 +20,8 @@
         <thead>
 
             <tr>
+
+                <th>Ordem</th>
 
                 <th>Jogador</th>
 
@@ -38,6 +41,9 @@
             {
 
                 <tr>
+                    <td>
+                        <p>@(i+1)</p>
+                    </td>
 
                     <td>
 
@@ -84,7 +90,7 @@
         </tbody>
 
     </table>
-
+    <p class="text-muted small">A responsabilidade de atribuir corretamente os jogadores a suas pontuações é sua. Você não precisa verificar a precisão dos números, apenas se não existe algum absurdo (ex: Pontuação completamente zerada, pontuação extremamente alta).</p>
     <button class="btn btn-success">
         Confirmar a pontuação
     </button>

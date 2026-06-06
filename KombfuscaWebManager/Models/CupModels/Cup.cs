@@ -22,6 +22,9 @@ namespace KombfuscaWebManager.Models.CupModels
 
         public ICollection<Period> Periods { get; set; }
             = new List<Period>();
+
+        public ICollection<CupAssignment> Assignments { get; set; }
+            = new List<CupAssignment>();
     }
 
     public enum CupStatus

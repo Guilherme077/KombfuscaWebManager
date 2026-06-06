@@ -1,71 +1,72 @@
 ﻿@model IEnumerable<KombfuscaWebManager.Models.CupModels.Cup>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Copas";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>Copas</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-action="Create" class="btn btn-primary">Criar Nova Copa</a>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Year)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Placename)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SubscriptionFee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.cupStatus)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Year)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Placename)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SubscriptionFee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.cupStatus)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Nenhuma copa encontrada.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                        <th>@Html.DisplayNameFor(model => model.StartDate)</th>
+                        <th>@Html.DisplayNameFor(model => model.Year)</th>
+                        <th>@Html.DisplayNameFor(model => model.Placename)</th>
+                        <th>@Html.DisplayNameFor(model => model.SubscriptionFee)</th>
+                        <th>@Html.DisplayNameFor(model => model.cupStatus)</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                            <td>@Html.DisplayFor(modelItem => item.Year)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Placename)</td>
+                            <td>R$ @item.SubscriptionFee.ToString("F2")</td>
+                            <td>
+                                <span class="badge bg-info">@Html.DisplayFor(modelItem => item.cupStatus)</span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning" title="Editar">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <a asp-action="ManageAssignments" asp-route-id="@item.Id" class="btn btn-outline-info" title="Gerenciar Atribuições">
+                                        <i class="bi bi-people"></i> Usuários
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary" title="Detalhes">
+                                        <i class="bi bi-eye"></i> Detalhes
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger" title="Deletar">
+                                        <i class="bi bi-trash"></i> Deletar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

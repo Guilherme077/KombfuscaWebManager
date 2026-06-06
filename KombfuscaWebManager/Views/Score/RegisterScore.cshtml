@@ -5,14 +5,14 @@
 }
 
 <h2>Registrar a Pontuação no Sistema</h2>
-<h2>Registro por Imagem da Folha de Pontuação</h2>
+<p class="text-muted small">Faça upload da foto do formulário de pontuação para a contagem automática dos pontos.</p>
 
 <form asp-action="UploadScoreSheet"
       asp-controller="Score"
       method="post"
       enctype="multipart/form-data">
 
-    <input type="text"
+    <input type="hidden"
            name="periodId"
            value="@ViewBag.PeriodId" />
 
@@ -27,6 +27,8 @@
                accept=".jpg,.jpeg,.png"
                required />
     </div>
+
+    <p class="text-muted small">IMPORTANTE: <br /> Tire a foto em local iluminado; <br /> Deixe o formulário com iluminação constante; <br /> Mantenha a câmera paralela a folha; <br /> Mantenha a folha inteira na foto; <br /> VERIFIQUE SE A FOLHA CORRESPONDE AO PERÍODO SELECIONADO.</p>
 
     <button type="submit" class="btn btn-primary">
         Registrar
