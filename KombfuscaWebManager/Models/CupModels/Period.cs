@@ -8,7 +8,7 @@
 
         public int CopaId { get; set; }
 
-        public Cup Copa { get; set; } = null!;
+        public Cup? Copa { get; set; }
 
         public ICollection<ScoreSheet> ScoreSheets { get; set; }
             = new List<ScoreSheet>();

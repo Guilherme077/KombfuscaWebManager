@@ -49,8 +49,8 @@ namespace KombfuscaWebManager.Controllers
         // GET: Participations/Create
         public IActionResult Create()
         {
-            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Id");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName");
             return View();
         }
 
@@ -59,16 +59,24 @@ namespace KombfuscaWebManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CupId,UserId")] Participation participation)
+        public async Task<IActionResult> Create([Bind("Id,CupId,UserId,TeamName")] Participation participation)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(participation);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(participation);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " + ex.InnerException?.Message);
+                }
             }
-            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Id", participation.CupId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", participation.UserId);
+
+            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name", participation.CupId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName", participation.UserId);
             return View(participation);
         }
 
@@ -85,8 +93,8 @@ namespace KombfuscaWebManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Id", participation.CupId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", participation.UserId);
+            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name", participation.CupId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName", participation.UserId);
             return View(participation);
         }
 
@@ -95,7 +103,7 @@ namespace KombfuscaWebManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CupId,UserId")] Participation participation)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CupId,UserId,TeamName")] Participation participation)
         {
             if (id != participation.Id)
             {
@@ -120,10 +128,15 @@ namespace KombfuscaWebManager.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " + ex.InnerException?.Message);
+                }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Id", participation.CupId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", participation.UserId);
+
+            ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name", participation.CupId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName", participation.UserId);
             return View(participation);
         }
 

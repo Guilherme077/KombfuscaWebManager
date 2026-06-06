@@ -41,10 +41,15 @@
 
                     <td>
 
-                        @Model.Players[i].Name
-
-                        <input type="hidden"
-                               asp-for="Players[i].UserId" />
+                        <select asp-for="Players[i].UserId" class="form-control">
+                            <option value="">-- Selecione um jogador --</option>
+                            @foreach (var participation in Model.AvailableParticipations)
+                            {
+                                <option value="@participation.UserId">
+                                    @participation.UserName - @participation.TeamName
+                                </option>
+                            }
+                        </select>
 
                         <input type="hidden"
                                asp-for="Players[i].Name" />

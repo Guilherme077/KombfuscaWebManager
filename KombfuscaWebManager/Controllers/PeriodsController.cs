@@ -48,7 +48,7 @@ namespace KombfuscaWebManager.Controllers
         // GET: Periods/Create
         public IActionResult Create()
         {
-            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Id");
+            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Name");
             return View();
         }
 
@@ -59,13 +59,32 @@ namespace KombfuscaWebManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,PaperNumber,CopaId")] Period period)
         {
+            // Validação manual
+            if (period.PaperNumber <= 0)
+            {
+                ModelState.AddModelError("PaperNumber", "Paper number must be greater than 0");
+            }
+
+            if (period.CopaId == 0)
+            {
+                ModelState.AddModelError("CopaId", "Please select a Cup");
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(period);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(period);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " + ex.InnerException?.Message);
+                }
             }
-            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Id", period.CopaId);
+
+            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Name", period.CopaId);
             return View(period);
         }
 
@@ -82,7 +101,7 @@ namespace KombfuscaWebManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Id", period.CopaId);
+            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Name", period.CopaId);
             return View(period);
         }
 
@@ -96,6 +115,17 @@ namespace KombfuscaWebManager.Controllers
             if (id != period.Id)
             {
                 return NotFound();
+            }
+
+            // Validação manual
+            if (period.PaperNumber <= 0)
+            {
+                ModelState.AddModelError("PaperNumber", "Paper number must be greater than 0");
+            }
+
+            if (period.CopaId == 0)
+            {
+                ModelState.AddModelError("CopaId", "Please select a Cup");
             }
 
             if (ModelState.IsValid)
@@ -116,9 +146,14 @@ namespace KombfuscaWebManager.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " + ex.InnerException?.Message);
+                }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Id", period.CopaId);
+
+            ViewData["CopaId"] = new SelectList(_context.Cups, "Id", "Name", period.CopaId);
             return View(period);
         }
 

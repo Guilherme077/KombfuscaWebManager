@@ -92,6 +92,30 @@ namespace KombfuscaWebManager.Controllers
                     });
             }
 
+            // Load participations for the cup of this period
+            var period = await _context.Periods
+                .Include(p => p.Copa)
+                .FirstOrDefaultAsync(p => p.Id == periodId);
+
+            if (period != null)
+            {
+                var participations = await _context.Participations
+                    .Where(p => p.CupId == period.CopaId)
+                    .Include(p => p.User)
+                    .ToListAsync();
+
+                foreach (var participation in participations)
+                {
+                    model.AvailableParticipations.Add(
+                        new ParticipationDropdownViewModel
+                        {
+                            UserId = participation.UserId,
+                            UserName = participation.User?.UserName ?? "",
+                            TeamName = participation.TeamName
+                        });
+                }
+            }
+
             return View("ConfirmScoreSheet", model);
         }
 
