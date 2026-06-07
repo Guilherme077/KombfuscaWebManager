@@ -1,5 +1,14 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Admin Area";
 }
+
+<div class="text-center">
+    <h1 class="display-6">Área do Admin</h1>
+    <p>Crie e edite copas, verifique os usuários, atribua permissões.</p>
+    <div class="d-flex flex-column mb-3">
+        <a asp-controller="Users" asp-action="Index">Atribuir permissões aos usuários</a>
+        <a asp-controller="Cups" asp-action="Index">Gerenciar Copas</a>
+        <a asp-controller="Periods" asp-action="Index">Gerenciar Períodos da Copa</a>
+    </div>
+    
+</div>

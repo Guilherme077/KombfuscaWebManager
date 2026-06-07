@@ -1,4 +1,5 @@
 using KombfuscaWebManager.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -36,6 +37,7 @@ namespace KombfuscaWebManager.Controllers
         {
             return View();
         }
+        [Authorize(Roles = Roles.Admin)]
         public IActionResult AdminArea()
         {
             return View();

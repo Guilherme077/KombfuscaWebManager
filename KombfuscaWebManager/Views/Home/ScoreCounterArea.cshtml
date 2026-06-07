@@ -1,5 +1,13 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Admin Area";
 }
+
+<div class="text-center">
+    <h1 class="display-6">Área do Contador de Pontos</h1>
+    <p>Envie as pontuações da copa.</p>
+    <div class="d-flex flex-column mb-3">
+        <a asp-controller="Score" asp-action="Index">Enviar pontuação</a>
+        <a asp-controller="Score" asp-action="Conflicts">Verificar conflitos</a>
+    </div>
+    
+</div>

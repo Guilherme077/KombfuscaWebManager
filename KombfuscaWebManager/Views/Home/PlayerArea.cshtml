@@ -250,9 +250,9 @@
                         </p>
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-action btn-subscribe" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                        <a asp-controller="Participations" asp-action="CupSubscription" asp-route-cupId="3" class="btn btn-action btn-view-scores">
                             Inscrever-se na Copa
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -272,7 +272,7 @@
                         </p>
                     </div>
                     <div class="card-footer">
-                        <a href="#" class="btn btn-action btn-view-scores">
+                        <a asp-controller="Score" asp-action="MyScores" class="btn btn-action btn-view-scores">
                             Ver Pontuações
                         </a>
                     </div>
