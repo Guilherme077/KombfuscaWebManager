@@ -1,0 +1,316 @@
+﻿@model KombfuscaWebManager.Models.CupModels.ViewModels.RegisterCupResultViewModel
+
+@{
+    ViewData["Title"] = "Registrar Resultado da Copa";
+}
+
+<div class="container mt-4">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h2> Registrar Resultado da Copa e Encerrar </h2>
+
+            <h5 class="text-muted"> @Model.CupName </h5>
+        </div>
+
+        <div class="col-auto align-self-center">
+            <a asp-controller="Cup" asp-action="Details" asp-route-id="@Model.CupId" class="btn btn-secondary"> Voltar </a>
+        </div>
+    </div>
+
+    @if (Model.HasDivergence)
+    {
+        <div class="alert alert-warning shadow-sm">
+
+            <h4> Divergências encontradas entre folhas de controle </h4>
+
+            <p class="mb-0"> Foram encontradas diferenças entre as Folhas de Controle de Pontuação. Isso pode ocorrer por erros de contagem eletrônica ou por contagem incorreta. Verifique as regras de jogo, resolva as divergências atribuindo uma pontuação final e confirme. </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success shadow-sm">
+
+            <h5 class="mb-0"> Nenhuma divergência encontrada. Pontuações prontas para confirmação. </h5>
+
+        </div>
+    }
+
+    <form asp-action="Register" method="post" id="registerForm">
+
+        <input asp-for="CupId" type="hidden" />
+
+        @for (int i = 0; i < Model.Players.Count; i++)
+        {
+            <input asp-for="Players[i].UserId" type="hidden" />
+            <input asp-for="Players[i].UserName" type="hidden" />
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <h4 class="mb-0"> Pontuação de @Model.Players[i].UserName </h4>
+
+                        @if (Model.Players[i].HasDivergence)
+                        {
+                            <span class="badge bg-warning text-dark"> Conflito de Pontuação </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success"> Sem Conflitos </span>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+                                <th width="120">Período</th>
+
+                                <th width="180">Veículo</th>
+
+                                <th>Quantidades informadas</th>
+
+                                <th width="220">Valor que será registrado</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+                            @for (int j = 0;
+                                 j < Model.Players[i].Divergences.Count;
+                                 j++)
+                            {
+                                var d = Model.Players[i].Divergences[j];
+
+                                <tr class="@(d.KombiDivergence ? "table-warning" : "")">
+
+                                    <td> @d.PeriodDesc </td>
+
+                                    <td> Kombi </td>
+
+                                    <td> @string.Join(", ", d.KombiValues) </td>
+
+                                    <td>
+
+                                        @if (d.KombiDivergence)
+                                        {
+                                            <input asp-for="Players[i].Divergences[j].KombiFinal" class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            @d.KombiFinal 
+                                            <input asp-for="Players[i].Divergences[j].KombiFinal" type="hidden" />
+                                        }
+
+                                    </td>
+
+                                </tr>
+                                
+                                <tr class="@(d.FuscaDivergence ? "table-warning" : "")">
+
+                                    <td> @d.PeriodDesc </td>
+
+                                    <td> Fusca </td>
+
+                                    <td> @string.Join(", ", d.FuscaValues) </td>
+
+                                    <td>
+
+                                        @if (d.FuscaDivergence)
+                                        {
+                                            <input asp-for="Players[i].Divergences[j].FuscaFinal" class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            @d.FuscaFinal
+                                            <input asp-for="Players[i].Divergences[j].FuscaFinal" type="hidden" />
+                                        }
+
+                                    </td>
+
+                                </tr>
+
+                                <tr class="@(d.NewBeetleDivergence ? "table-warning" : "")">
+
+                                    <td> @d.PeriodDesc </td>
+
+                                    <td> New Beetle </td>
+
+                                    <td> @string.Join(", ", d.NewBeetleValues) </td>
+
+                                    <td>
+
+                                        @if (d.NewBeetleDivergence)
+                                        {
+                                            <input asp-for="Players[i].Divergences[j].NewBeetleFinal" class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            @d.NewBeetleFinal 
+                                            <input asp-for="Players[i].Divergences[j].NewBeetleFinal" type="hidden" />
+                                        }
+
+                                    </td>
+
+                                </tr>
+
+                                <input asp-for="Players[i].Divergences[j].PeriodId" type="hidden" />
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                    <hr />
+
+                    <div class="row text-center">
+
+                        <div class="col-md-3">
+
+                            <div class="fw-bold text-secondary"> Kombi </div>
+
+                            <h3> @Model.Players[i].Kombi </h3>
+
+                            <input asp-for="Players[i].Kombi" type="hidden" />
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="fw-bold text-secondary"> Fusca </div>
+
+                            <h3> @Model.Players[i].Fusca </h3>
+
+                            <input asp-for="Players[i].Fusca" type="hidden" />
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="fw-bold text-secondary"> New Beetle </div>
+
+                            <h3> @Model.Players[i].NewBeetle </h3>
+
+                            <input asp-for="Players[i].NewBeetle" type="hidden" />
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="fw-bold text-success"> Total de Veículos </div>
+
+                            <h2 class="text-success">
+
+                                @(Model.Players[i].Fusca + Model.Players[i].Kombi + Model.Players[i].NewBeetle)
+
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        <div class="card shadow mt-4">
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-8">
+
+                        <h4> Resumo </h4>
+
+                        <p class="mb-1"> Jogadores: <strong>@Model.Players.Count</strong> </p>
+
+                        <p class="mb-1"> Divergências: <strong> @Model.Players.Count(p => p.HasDivergence) </strong> </p>
+
+                    </div>
+
+                    <div class="col-md-4 text-end align-self-center">
+
+                        <button type="submit" class="btn btn-success btn-lg"> Confirmar Valores </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function(){
+
+            function atualizarTotais(){
+
+                const cards = document.querySelectorAll(".card");
+
+                cards.forEach(function(card){
+
+                    let fusca = 0;
+                    let kombi = 0;
+                    let beetle = 0;
+
+                    card.querySelectorAll("input").forEach(function(input){
+
+                        if(input.name.includes("FuscaFinal")){
+                            fusca += parseInt(input.value || 0);
+                        }
+
+                        if(input.name.includes("KombiFinal")){
+                            kombi += parseInt(input.value || 0);
+                        }
+
+                        if(input.name.includes("NewBeetleFinal")){
+                            beetle += parseInt(input.value || 0);
+                        }
+
+                    });
+
+                    const total = fusca + kombi + beetle;
+
+                    const h2 = card.querySelector("h2.text-success");
+
+                    if(h2){
+                        h2.innerText = total;
+                    }
+
+                });
+
+            }
+
+            document.querySelectorAll("input").forEach(function(input){
+
+                input.addEventListener("input", atualizarTotais);
+
+            });
+
+            atualizarTotais();
+
+        });
+
+    </script>
+
+}

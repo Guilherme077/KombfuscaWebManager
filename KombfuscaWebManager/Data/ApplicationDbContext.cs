@@ -25,6 +25,8 @@ namespace KombfuscaWebManager.Data
 
         public DbSet<CupAssignment> CupAssignments { get; set; }
 
+        public DbSet<CupResult> CupResults { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
