@@ -32,9 +32,9 @@
 
                 <th>Jogador</th>
 
-                <th>Fusca</th>
-
                 <th>Kombi</th>
+
+                <th>Fusca</th>
 
                 <th>New Beetle</th>
 
@@ -71,14 +71,14 @@
 
                     <td>
 
-                        <input asp-for="Players[i].Fusca"
+                        <input asp-for="Players[i].Kombi"
                                class="form-control" />
 
                     </td>
 
                     <td>
 
-                        <input asp-for="Players[i].Kombi"
+                        <input asp-for="Players[i].Fusca"
                                class="form-control" />
 
                     </td>
@@ -97,7 +97,7 @@
         </tbody>
 
     </table>
-    <p class="text-muted small">A responsabilidade de atribuir corretamente os jogadores a suas pontuações é sua. Você não precisa verificar a precisão dos números, mas confira, pela imagem, se nenhum ponto foi ignorado ou marcado incorretamente.</p>
+    <p class="text-muted small">A responsabilidade de atribuir corretamente os jogadores a suas pontuações é sua. Você não precisa verificar a precisão dos números, mas confira, pela imagem, se nenhum ponto foi ignorado ou marcado incorretamente. Em caso de erro da leitura automática, tente novamente. Caso não funcione, reporte o problema e edite manualmente os pontos.</p>
     <button class="btn btn-success">
         Confirmar a pontuação
     </button>
