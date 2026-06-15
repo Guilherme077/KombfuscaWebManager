@@ -8,7 +8,14 @@
 @model ScoreConfirmationViewModel
 
 <h2>Confirmar Pontuações</h2>
-<p class="text-muted small">Atribua os jogadores a cada pontuação. <br /> Verifique se os números parecem coincidir. <br/> A ordem da lista abaixo é a mesma da folha.</p>
+<p class="text-muted small">Os pontos identificados estão com quadrados verdes.<br /> Verifique se algum ponto não foi ignorado ou se algum quadrado foi marcado incorretamente.<br /> EVITE MODIFICAR MANUALMENTE OS PONTOS! Em caso de erros, repita a digitalização/foto.</p>
+
+@if (!string.IsNullOrEmpty(Model.ProcessedImage))
+{
+    <img src="data:image/png;base64,@Model.ProcessedImage" width="600" height="600"  alt="Imagem processada" />
+}
+
+<p>Atribua cada jogador em sua pontuação. A ordem da tabela abaixo é a mesma da folha (da esquerda para a direita). <br /> A remoção de pontos <strong>NÃO</strong> é automática. Edite a pontuação manualmente para remover pontos.</p>
 
 <form asp-action="SaveScoreSheet" method="post">
 
@@ -90,7 +97,7 @@
         </tbody>
 
     </table>
-    <p class="text-muted small">A responsabilidade de atribuir corretamente os jogadores a suas pontuações é sua. Você não precisa verificar a precisão dos números, apenas se não existe algum absurdo (ex: Pontuação completamente zerada, pontuação extremamente alta).</p>
+    <p class="text-muted small">A responsabilidade de atribuir corretamente os jogadores a suas pontuações é sua. Você não precisa verificar a precisão dos números, mas confira, pela imagem, se nenhum ponto foi ignorado ou marcado incorretamente.</p>
     <button class="btn btn-success">
         Confirmar a pontuação
     </button>

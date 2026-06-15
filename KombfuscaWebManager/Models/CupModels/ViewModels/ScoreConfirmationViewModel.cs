@@ -4,6 +4,8 @@
     {
         public int PeriodId { get; set; }
 
+        public string? ProcessedImage { get; set; }
+
         public List<PlayersScoreConfirmationViewModel> Players { get; set; }
             = new();
 

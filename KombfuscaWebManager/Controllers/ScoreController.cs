@@ -195,19 +195,20 @@ namespace KombfuscaWebManager.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception(
-                    $"Status: {response.StatusCode}\n\nResposta:\n{body}");
+                    $"Status: {response.StatusCode}\n\nResponse:\n{body}");
             }
 
             string json = await response.Content.ReadAsStringAsync();
 
-            var resultado = JsonSerializer.Deserialize<Dictionary<string, ResultScoreCounterAPI>>(json);
+            var result = JsonSerializer.Deserialize<ScoreCounterResponse>(json);
 
             var model = new ScoreConfirmationViewModel
             {
-                PeriodId = periodId
+                PeriodId = periodId,
+                ProcessedImage = result.ProcessedImage
             };
 
-            foreach (var item in resultado)
+            foreach (var item in result.Players)
             {
                 model.Players.Add(
                     new PlayersScoreConfirmationViewModel
