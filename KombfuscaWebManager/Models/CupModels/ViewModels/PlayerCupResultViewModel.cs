@@ -14,7 +14,10 @@
 
         public bool HasDivergence { get; set; }
 
-        public List<PeriodDivergenceViewModel> Divergences
-            = new();
+        public List<PeriodDivergenceViewModel> Divergences { get; set; }
+        public PlayerCupResultViewModel()
+        {
+            Divergences = new List<PeriodDivergenceViewModel>();
+        }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using KombfuscaWebManager.Data;
 using KombfuscaWebManager.Models;
+using KombfuscaWebManager.Models.CupModels;
 using KombfuscaWebManager.Models.CupModels.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace KombfuscaWebManager.Controllers
@@ -23,6 +25,7 @@ namespace KombfuscaWebManager.Controllers
             return View();
         }
 
+        [HttpGet]
         public async Task<IActionResult> Register(int cupId)
         {
             if (await _context.CupResults.AnyAsync(c => c.CupId == cupId))
@@ -113,6 +116,56 @@ namespace KombfuscaWebManager.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterCupResultViewModel model)
+        {
+            bool exists = await _context.CupResults.AnyAsync(x => x.CupId == model.CupId);
+
+            if (exists)
+            {
+                return BadRequest("There are already results for this cup.");
+            }
+
+
+            var results = new List<CupResult>();
+            foreach (var player in model.Players)
+            {
+                int fusca = player.Divergences.Sum(d => d.FuscaFinal);
+
+                int kombi = player.Divergences.Sum(d => d.KombiFinal);
+
+                int newBeetle = player.Divergences.Sum(d => d.NewBeetleFinal);
+
+                int total = kombi + (fusca * 2) + (newBeetle * 3);
+
+                var participation = await _context.Participations.Where(p => p.CupId == model.CupId && p.UserId == player.UserId).FirstOrDefaultAsync();
+
+                results.Add(new CupResult
+                {
+                    CupId = model.CupId,
+                    UserId = player.UserId,
+                    TeamName = (participation != null)? participation.TeamName : "",
+                    QtdFusca = fusca,
+                    QtdKombi = kombi,
+                    QtdNewBeetle = newBeetle,
+                    TotalScore = total
+                });
+            }
+
+            results = results.OrderByDescending(x => x.TotalScore).ThenByDescending(x => x.QtdNewBeetle).ThenByDescending(x => x.QtdFusca).ToList();
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                results[i].Position = i + 1;
+            }
+
+            _context.CupResults.AddRange(results);
+
+            await _context.SaveChangesAsync();
+
+            return View("Index");
         }
     }
 }

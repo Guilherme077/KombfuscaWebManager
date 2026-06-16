@@ -86,46 +86,36 @@
                         </thead>
 
                         <tbody>
-                            @for (int j = 0;
-                                 j < Model.Players[i].Divergences.Count;
-                                 j++)
+                            @for (int j = 0; j < Model.Players[i].Divergences.Count; j++)
                             {
                                 var d = Model.Players[i].Divergences[j];
 
                                 <tr class="@(d.KombiDivergence ? "table-warning" : "")">
-
-                                    <td> @d.PeriodDesc </td>
-
-                                    <td> Kombi </td>
-
-                                    <td> @string.Join(", ", d.KombiValues) </td>
-
                                     <td>
-
+                                        @d.PeriodDesc
+                                        <input asp-for="Players[i].Divergences[j].PeriodId" type="hidden" />
+                                        <input asp-for="Players[i].Divergences[j].PeriodDesc" type="hidden" />
+                                    </td>
+                                    <td> Kombi </td>
+                                    <td> @string.Join(", ", d.KombiValues) </td>
+                                    <td>
                                         @if (d.KombiDivergence)
                                         {
                                             <input asp-for="Players[i].Divergences[j].KombiFinal" class="form-control" />
                                         }
                                         else
                                         {
-                                            @d.KombiFinal 
+                                            @d.KombiFinal
                                             <input asp-for="Players[i].Divergences[j].KombiFinal" type="hidden" />
                                         }
-
                                     </td>
-
                                 </tr>
-                                
+        
                                 <tr class="@(d.FuscaDivergence ? "table-warning" : "")">
-
                                     <td> @d.PeriodDesc </td>
-
                                     <td> Fusca </td>
-
                                     <td> @string.Join(", ", d.FuscaValues) </td>
-
                                     <td>
-
                                         @if (d.FuscaDivergence)
                                         {
                                             <input asp-for="Players[i].Divergences[j].FuscaFinal" class="form-control" />
@@ -135,39 +125,26 @@
                                             @d.FuscaFinal
                                             <input asp-for="Players[i].Divergences[j].FuscaFinal" type="hidden" />
                                         }
-
                                     </td>
-
                                 </tr>
 
                                 <tr class="@(d.NewBeetleDivergence ? "table-warning" : "")">
-
                                     <td> @d.PeriodDesc </td>
-
                                     <td> New Beetle </td>
-
                                     <td> @string.Join(", ", d.NewBeetleValues) </td>
-
                                     <td>
-
                                         @if (d.NewBeetleDivergence)
                                         {
                                             <input asp-for="Players[i].Divergences[j].NewBeetleFinal" class="form-control" />
                                         }
                                         else
                                         {
-                                            @d.NewBeetleFinal 
+                                            @d.NewBeetleFinal
                                             <input asp-for="Players[i].Divergences[j].NewBeetleFinal" type="hidden" />
                                         }
-
                                     </td>
-
                                 </tr>
-
-                                <input asp-for="Players[i].Divergences[j].PeriodId" type="hidden" />
-
                             }
-
                         </tbody>
 
                     </table>
