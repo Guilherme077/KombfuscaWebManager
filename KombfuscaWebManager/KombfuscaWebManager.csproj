@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="itext" Version="8.0.5" />
+    <PackageReference Include="itext.bouncy-castle-adapter" Version="8.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.27" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.27" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.27" />
@@ -15,6 +17,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.27" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\PdfModels\" />
   </ItemGroup>
 
 </Project>

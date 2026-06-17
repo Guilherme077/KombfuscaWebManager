@@ -223,7 +223,6 @@ namespace KombfuscaWebManager.Controllers
                 return Unauthorized();
             }
 
-            // Verificar se o usuário já está inscrito nesta copa
             var existingParticipation = await _context.Participations
                 .FirstOrDefaultAsync(p => p.CupId == model.CupId && p.UserId == userId);
 
@@ -262,7 +261,6 @@ namespace KombfuscaWebManager.Controllers
                 }
             }
 
-            // Recarregar dados da copa para exibir na view em caso de erro
             var cup = await _context.Cups.FindAsync(model.CupId);
             if (cup != null)
             {

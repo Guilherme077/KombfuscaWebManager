@@ -26,12 +26,14 @@ namespace KombfuscaWebManager.Controllers
         }
 
         // GET: Cups
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Cups.ToListAsync());
         }
 
         // GET: Cups/Details/5
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -40,6 +42,7 @@ namespace KombfuscaWebManager.Controllers
             }
 
             var cup = await _context.Cups
+                .Include(c => c.Periods)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (cup == null)
             {
@@ -50,6 +53,7 @@ namespace KombfuscaWebManager.Controllers
         }
 
         // GET: Cups/Create
+        [Authorize(Roles = Roles.Admin)]
         public IActionResult Create()
         {
             return View();
@@ -60,6 +64,7 @@ namespace KombfuscaWebManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Create([Bind("Id,Name,StartDate,Year,Placename,EndDate,SubscriptionFee,cupStatus")] Cup cup)
         {
             if (ModelState.IsValid)
@@ -72,6 +77,7 @@ namespace KombfuscaWebManager.Controllers
         }
 
         // GET: Cups/Edit/5
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -92,6 +98,7 @@ namespace KombfuscaWebManager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,Year,Placename,EndDate,SubscriptionFee,cupStatus")] Cup cup)
         {
             if (id != cup.Id)
@@ -123,6 +130,7 @@ namespace KombfuscaWebManager.Controllers
         }
 
         // GET: Cups/Delete/5
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -143,6 +151,7 @@ namespace KombfuscaWebManager.Controllers
         // POST: Cups/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var cup = await _context.Cups.FindAsync(id);
