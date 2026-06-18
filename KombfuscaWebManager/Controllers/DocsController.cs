@@ -37,16 +37,55 @@ namespace KombfuscaWebManager.Controllers
             string[] periodsDesc = cup.Periods.Select(p => p.Description).ToArray();
 
             string modelPath = Path.Combine(_env.ContentRootPath, "Services", "PdfModels", "scoreSheetModel.pdf");
+            string coverModelPath = Path.Combine(_env.ContentRootPath, "Services", "PdfModels", "coverScoreSheetModel.pdf");
 
             if (!System.IO.File.Exists(modelPath))
             {
-                return NotFound("Model not found.");
+                return NotFound("ScoreSheet Model not found.");
+            }
+            if (!System.IO.File.Exists(coverModelPath))
+            {
+                return NotFound("Cover Model not found.");
             }
 
             using (MemoryStream streamFinal = new MemoryStream())
             {
                 PdfWriter writerFinal = new PdfWriter(streamFinal);
                 PdfDocument pdfDest = new PdfDocument(writerFinal);
+
+
+                using (MemoryStream streamTemp = new MemoryStream())
+                {
+                    PdfReader readerModel = new PdfReader(coverModelPath);
+                    PdfWriter writerTemp = new PdfWriter(streamTemp);
+                    PdfDocument pdfTemp = new PdfDocument(readerModel, writerTemp);
+
+                    Document docLayout = new Document(pdfTemp);
+                    PdfFont fontObj = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+                    Paragraph text = new Paragraph(gameName).SetFont(fontObj).SetFontSize(16).SetFontColor(iText.Kernel.Colors.ColorConstants.BLACK).SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER);
+
+                    float posX = 0;
+                    float posY = 420;
+
+                    text.SetFixedPosition(posX, posY, 595);
+
+                    docLayout.Add(text);
+
+                    docLayout.Close();
+                    pdfTemp.Close();
+
+
+                    using (MemoryStream streamLeituraTemp = new MemoryStream(streamTemp.ToArray()))
+                    {
+                        PdfReader readerPaginaPronta = new PdfReader(streamLeituraTemp);
+                        PdfDocument pdfOriginalReady = new PdfDocument(readerPaginaPronta);
+
+                        pdfOriginalReady.CopyPagesTo(1, 1, pdfDest);
+
+                        pdfOriginalReady.Close();
+                    }
+                }
 
 
                 for (int i = 1; i <= nPages; i++)
