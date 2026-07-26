@@ -5,58 +5,261 @@
     ViewData["Title"] = "Detalhes da Copa";
 }
 
-<h1>Detalhes</h1>
+<style>
+    .cup-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
 
-<div>
-    <h4>Copa</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StartDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StartDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Year)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Year)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Placename)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Placename)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EndDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EndDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SubscriptionFee)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SubscriptionFee)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.cupStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.cupStatus)
-        </dd>
-    </dl>
+    .cup-header h1 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .cup-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+    }
+
+    .info-card {
+        border-left: 4px solid #667eea;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #333;
+        margin-top: 0.5rem;
+    }
+
+    .periods-section {
+        margin-top: 3rem;
+    }
+
+    .period-item {
+        background: linear-gradient(to right, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1rem;
+        margin: 0.75rem 0;
+        border-radius: 6px;
+        border-left: 4px solid #667eea;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .period-number {
+        background: #667eea;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+
+    .period-description {
+        flex: 1;
+        color: #333;
+    }
+
+    .form-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+    }
+
+    .form-card .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 7px 7px 0 0;
+    }
+
+    .form-card .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .note-section {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .note-section strong {
+        color: #856404;
+    }
+
+    .note-section p {
+        margin: 0;
+        color: #856404;
+        line-height: 1.6;
+    }
+
+    .btn-action {
+        margin-right: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 2px dashed #dee2e6;
+    }
+
+    .empty-state-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .existing-periods-title {
+        font-weight: 600;
+        color: #333;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .periods-badge {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-left: 0.5rem;
+    }
+</style>
+
+<div class="cup-header">
+    <h1>Detalhes da Copa</h1>
+    <p>@Html.DisplayFor(model => model.Name)</p>
 </div>
-<div>
-    <a asp-action="GenerateScoreSheets" asp-controller="Docs" asp-route-cupId="@Model.Id" asp-route-footer="@(Model.Year + " - " + Model.Placename + " | CAK" + "\nGerado Automaticamente em " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + " pelo Sistema Eletrônico do Kombfusca")" target="_blank" class="btn btn-info"> Gerar Folhas de Pontuação </a>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="card info-card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.Name)</div>
+                    <div class="info-value">@Html.DisplayFor(model => model.Name)</div>
+                </div>
+                <div class="mb-3">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.Year)</div>
+                    <div class="info-value">@Html.DisplayFor(model => model.Year)</div>
+                </div>
+                <div class="mb-3">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.SubscriptionFee)</div>
+                    <div class="info-value">R$ @Html.DisplayFor(model => model.SubscriptionFee)</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.Placename)</div>
+                    <div class="info-value">@Html.DisplayFor(model => model.Placename)</div>
+                </div>
+                <div class="mb-3">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.StartDate)</div>
+                    <div class="info-value">@Html.DisplayFor(model => model.StartDate)</div>
+                </div>
+                <div class="mb-3">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.EndDate)</div>
+                    <div class="info-value">@Html.DisplayFor(model => model.EndDate)</div>
+                </div>
+                <div class="mb-0">
+                    <div class="info-label">@Html.DisplayNameFor(model => model.cupStatus)</div>
+                    <div class="info-value">
+                        <span class="badge bg-info">@Html.DisplayFor(model => model.cupStatus)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="periods-section">
+    <h3 style="color: #333; font-weight: 700;">Períodos</h3>
+    <hr style="border-top: 2px solid #667eea;" />
+
+    <div class="form-card card mb-4">
+        <div class="card-header">
+            <h5>Novo Período</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateFromCup" asp-controller="Periods" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="paperNumber" class="form-label fw-600">Número do Papel</label>
+                            <input type="number" class="form-control" id="paperNumber" name="paperNumber" min="1" required placeholder="Ex: 1, 2, 3..." />
+                            <small class="form-text text-muted">Número sequencial do período</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="description" class="form-label fw-600">Descrição</label>
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Ex: Dia 1, Dia 2 - Manhã, Dia 3" />
+                            <small class="form-text text-muted">Descrição opcional do período</small>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="cupId" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary btn-action">
+                    <i class="bi bi-plus-circle"></i> Criar Período
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Periods.Any())
+    {
+        <div class="existing-periods-title">
+            <span class="periods-badge">@Model.Periods.Count @(Model.Periods.Count == 1 ? "período" : "períodos")</span>
+        </div>
+        <div>
+            @foreach(var period in Model.Periods)
+            {
+                <div class="period-item">
+                    <span class="period-number">@period.PaperNumber</span>
+                    <span class="period-description">@period.Description</span>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p class="fw-500" style="color: #6c757d; margin-bottom: 0.5rem;">Nenhum período criado</p>
+            <p style="color: #6c757d; font-size: 0.95rem;">Esta copa não possui períodos. Crie no mínimo 1 para a impressão de folhas e registro de pontos.</p>
+        </div>
+    }
+</div>
+<div class="note-section">
+    <strong>IMPORTANTE:</strong>
+    <p>A geração das folhas de pontuação é feita de acordo com os períodos criados e com a quantidade de contadores definidos. Após gerar as folhas oficiais de contagem, não modifique informações da copa, dos contadores ou dos períodos.</p>
+</div>
+
+<div style="margin-top: 2rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a asp-action="GenerateScoreSheets" asp-controller="Docs" asp-route-cupId="@Model.Id" asp-route-footer="@(Model.Year + " - " + Model.Placename + " | CAK" + "\nGerado Automaticamente em " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + " pelo Sistema Eletrônico do Kombfusca")" target="_blank" class="btn btn-info btn-action">
+        Gerar Folhas de Pontuação
+    </a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning btn-action">
+        Editar
+    </a>
+    <a asp-action="Index" class="btn btn-secondary btn-action">
+        Voltar
+    </a>
 </div>

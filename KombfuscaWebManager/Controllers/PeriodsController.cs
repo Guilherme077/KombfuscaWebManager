@@ -191,6 +191,43 @@ namespace KombfuscaWebManager.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateFromCup(int paperNumber, string description, int cupId)
+        {
+            var period = new Period
+            {
+                PaperNumber = paperNumber,
+                Description = description,
+                CopaId = cupId
+            };
+
+            if (period.PaperNumber <= 0)
+            {
+                ModelState.AddModelError("PaperNumber", "Paper number must be greater than 0");
+            }
+
+            if (period.CopaId == 0)
+            {
+                ModelState.AddModelError("CopaId", "Please select a Cup");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Add(period);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Details", "Cups", new { id = cupId });
+                }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " + ex.InnerException?.Message);
+                }
+            }
+            return RedirectToAction("Details", "Cups", new {id = cupId});
+        }
+
         private bool PeriodExists(int id)
         {
             return _context.Periods.Any(e => e.Id == id);
