@@ -67,6 +67,7 @@ namespace KombfuscaWebManager.Controllers
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Create([Bind("Id,Name,StartDate,Year,Placename,EndDate,SubscriptionFee,cupStatus")] Cup cup)
         {
+            cup.cupStatus = CupStatus.closedSubscriptions;
             if (ModelState.IsValid)
             {
                 _context.Add(cup);
@@ -90,6 +91,7 @@ namespace KombfuscaWebManager.Controllers
             {
                 return NotFound();
             }
+            ViewBag.CupStatusOptions = new SelectList(Enum.GetValues(typeof(CupStatus)));
             return View(cup);
         }
 
