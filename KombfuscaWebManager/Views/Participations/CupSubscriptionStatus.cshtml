@@ -1,0 +1,89 @@
+﻿@using KombfuscaWebManager.Models.CupModels.ViewModels
+@model CupSubscriptionStatusViewModel
+@{
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4" style="color: #333;">
+                <i class="fas fa-trophy me-2"></i>Status da Inscrição na Copa
+            </h1>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-primary mb-3">
+                        <i class="fas fa-cup-of-tea me-2"></i>@Model.CupName
+                    </h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block mb-1">Local</small>
+                            <p class="mb-0"><strong>@Model.Placename</strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block mb-1">Ano</small>
+                            <p class="mb-0"><strong>@Model.Year</strong></p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block mb-2">Data de Início</small>
+                            <div>
+                                <p class="mb-0"><strong>@(Model.StartDate.ToString("dd/MM/yyyy"))</strong></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block mb-2">Taxa de Inscrição</small>
+                            <p class="mb-0 fs-5"><strong>R$ @Model.SubscriptionFee.ToString("F2")</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.SubscriptionFeePayed)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Pagamento Confirmado!</strong> Sua taxa de inscrição foi recebida e sua inscrição está confirmada.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Pagamento Pendente</strong>
+                    <p class="mb-2">Sua taxa de inscrição ainda não foi confirmada. É preciso pagar a taxa de inscrição antes do início da copa.</p>
+                </div>
+
+                <div class="card border-warning bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title text-warning mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Como Realizar o Pagamento
+                        </h6>
+                        <ul class="mb-0">
+                            <li class="mb-2">Procure um funcionário da <strong>CAK</strong></li>
+                            <li class="mb-2">Efetue o pagamento de <strong>R$ @Model.SubscriptionFee.ToString("F2")</strong></li>
+                            <li>O status será atualizado nesta página em até 24 horas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Atenção:</strong> Após o pagamento, pode demorar até 24 para o status de pagamento mudar nesta página.
+                </div>
+            }
+
+            <div class="mt-4">
+                <a href="@Url.Action("PlayerArea", "Home")" class="btn btn-secondary">
+                    Voltar a Área do Competidor
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

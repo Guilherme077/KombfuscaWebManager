@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KombfuscaWebManager.Data;
+using KombfuscaWebManager.Models;
+using KombfuscaWebManager.Models.CupModels;
+using KombfuscaWebManager.Models.CupModels.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using KombfuscaWebManager.Data;
-using KombfuscaWebManager.Models.CupModels;
-using KombfuscaWebManager.Models.CupModels.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace KombfuscaWebManager.Controllers
 {
@@ -185,6 +187,13 @@ namespace KombfuscaWebManager.Controllers
         // GET: Participations/CupSubscription/5
         public async Task<IActionResult> CupSubscription(int? cupId)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             if (cupId == null)
             {
                 return NotFound();
@@ -194,6 +203,14 @@ namespace KombfuscaWebManager.Controllers
             if (cup == null)
             {
                 return NotFound();
+            }
+
+            var existingParticipation = await _context.Participations
+                .FirstOrDefaultAsync(p => p.CupId == cupId && p.UserId == userId);
+
+            if (existingParticipation != null)
+            {
+                return RedirectToAction("CupSubscriptionStatus", "Participations", new { cupId = cupId });
             }
 
             var model = new CupSubscriptionViewModel
@@ -253,7 +270,7 @@ namespace KombfuscaWebManager.Controllers
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "Inscrição na copa realizada com sucesso!";
-                    return RedirectToAction("Index", "Cups");
+                    return RedirectToAction("CupSubscriptionStatus", "Participations", new {cupId = model.CupId});
                 }
                 catch (DbUpdateException ex)
                 {
@@ -274,6 +291,65 @@ namespace KombfuscaWebManager.Controllers
             }
 
             return View(model);
+        }
+
+        // GET: Participations/CupSubscriptionStatus/5
+        public async Task<IActionResult> CupSubscriptionStatus(int? cupId)
+        {
+            if (cupId == null)
+            {
+                return NotFound();
+            }
+
+            var cup = await _context.Cups.FindAsync(cupId);
+            
+            if (cup == null)
+            {
+                return NotFound();
+            }
+
+            var participation = await _context.Participations.Include(p => p.Cup).FirstOrDefaultAsync(p => p.CupId == cupId && p.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (participation == null)
+            {
+                return NotFound();
+            }
+
+            var model = new CupSubscriptionStatusViewModel
+            {
+                CupId = cup.Id,
+                CupName = cup.Name,
+                Placename = cup.Placename,
+                StartDate = cup.StartDate,
+                EndDate = cup.EndDate,
+                Year = cup.Year,
+                SubscriptionFee = cup.SubscriptionFee,
+                SubscriptionFeePayed = participation.SubscriptionFeePayed
+            };
+
+            return View(model);
+        }
+        // GET: Participations/PaymentsControl
+        [HttpGet]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> PaymentsControl()
+        {
+            var participations = await _context.Participations.Where(p => p.SubscriptionFeePayed == false).Include(p => p.Cup).Include(p => p.User).ToListAsync();
+            return View(participations);
+        }
+        // POST: Participations/PaymentsControl
+        [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> PaymentsControl(int participationId)
+        {
+            var participation = await _context.Participations.Where(p => p.Id == participationId && p.SubscriptionFeePayed == false).FirstOrDefaultAsync();
+            if(participation == null)
+            {
+                return NotFound();
+            }
+            participation.SubscriptionFeePayed = true;
+            _context.Update(participation);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("PaymentsControl", "Participations");
         }
     }
 }

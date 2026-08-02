@@ -11,5 +11,6 @@
         public ApplicationUser? User { get; set; }
 
         public string TeamName { get; set; } = string.Empty;
+        public bool SubscriptionFeePayed { get; set; } = false;
     }
 }

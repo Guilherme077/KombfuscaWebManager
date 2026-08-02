@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<KombfuscaWebManager.Models.CupModels.Cup>
+@{
     ViewData["Title"] = "Área do Competidor";
 }
 
@@ -236,26 +237,30 @@
     <section class="mb-5">
         <h2 class="section-title">Acesso Rápido</h2>
         <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="card action-card">
-                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); justify-content: center;">
-                        <div style="text-align: center; color: white;">
-                            <div class="card-icon">🏆</div>
-                            <h5 style="margin: 0;">Inscrição</h5>
+            @foreach(var cup in Model)
+            {
+                <div class="col-lg-3 col-md-6">
+                    <div class="card action-card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); justify-content: center;">
+                            <div style="text-align: center; color: white;">
+                                <div class="card-icon">🏆</div>
+                                <h5 style="margin: 0;">Inscrição</h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted" style="font-size: 0.95rem;">
+                                Inscreva-se na @cup.Name
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-controller="Participations" asp-action="CupSubscription" asp-route-cupId="@cup.Id" class="btn btn-action btn-view-scores">
+                                Inscrever-se na Copa
+                            </a>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <p class="text-muted" style="font-size: 0.95rem;">
-                            Inscreva-se na Próxima Copa Kombfusca
-                        </p>
-                    </div>
-                    <div class="card-footer">
-                        <a asp-controller="Participations" asp-action="CupSubscription" asp-route-cupId="3" class="btn btn-action btn-view-scores">
-                            Inscrever-se na Copa
-                        </a>
-                    </div>
                 </div>
-            </div>
+            }
+            
 
             <!-- View Scores Card -->
             <div class="col-lg-3 col-md-6">
