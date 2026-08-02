@@ -276,5 +276,72 @@ namespace KombfuscaWebManager.Controllers
 
             return RedirectToAction("Details", "Periods", new { id = model.PeriodId });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> MyScores()
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null) return Unauthorized();
+
+            var cupResults = await _context.CupResults.Where(c => c.UserId == userId).ToListAsync();
+
+            var myScores = new List<MyScoreViewModel>();
+
+            foreach (var cupResult in cupResults)
+            {
+                var cup = await _context.Cups.FindAsync(cupResult.CupId);
+                if (cup == null) continue;
+                myScores.Add(new MyScoreViewModel
+                {
+                    UserName = User.Identity?.Name ?? "",
+                    TeamName = cupResult.TeamName,
+                    TotalScore = cupResult.TotalScore,
+                    Kombi = cupResult.QtdKombi,
+                    Fusca = cupResult.QtdFusca,
+                    NewBeetle = cupResult.QtdNewBeetle,
+                    Position = cupResult.Position,
+                    CupId = cup.Id,
+                    CupName = cup.Name,
+                    CupYear = cup.StartDate.Year,
+                    GeneratedAt = cupResult.GeneratedAt
+                });
+            }
+
+            return View(myScores);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CupScores(int cupId)
+        {
+            var cupExists = await _context.Cups.Where(c => c.Id == cupId).FirstOrDefaultAsync();
+            if (cupExists == null) return NotFound();
+            var cupResults = await _context.CupResults.Where(c => c.CupId == cupId).ToListAsync();
+
+            var scores = new List<MyScoreViewModel>();
+
+            foreach (var cupResult in cupResults)
+            {
+                var cup = await _context.Cups.FindAsync(cupResult.CupId);
+                var user = await _context.Users.FindAsync(cupResult.UserId);
+                if (cup == null || user == null) return NotFound();
+                scores.Add(new MyScoreViewModel
+                {
+                    UserName = user.UserName ?? "",
+                    TeamName = cupResult.TeamName,
+                    TotalScore = cupResult.TotalScore,
+                    Kombi = cupResult.QtdKombi,
+                    Fusca = cupResult.QtdFusca,
+                    NewBeetle = cupResult.QtdNewBeetle,
+                    Position = cupResult.Position,
+                    CupId = cup.Id,
+                    CupName = cup.Name,
+                    CupYear = cup.StartDate.Year,
+                    GeneratedAt = cupResult.GeneratedAt
+                });
+            }
+
+            return View(scores);
+        }
     }
 }

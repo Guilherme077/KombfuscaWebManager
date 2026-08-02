@@ -1,0 +1,132 @@
+﻿@using KombfuscaWebManager.Models.CupModels.ViewModels
+@model IEnumerable<MyScoreViewModel>
+
+@{
+    var scoresList = Model.ToList();
+}
+
+<div class="container-fluid mt-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="mb-1" style="color: #1e3a8a;">
+                <i class="fas fa-trophy me-2"></i>Minhas Copas
+            </h1>
+            <p class="text-muted">Histórico de participações e resultados</p>
+        </div>
+    </div>
+
+    @if (!scoresList.Any())
+    {
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nenhuma copa encontrada</strong> - Você ainda não participou de nenhuma copa.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        @foreach (var cupResult in scoresList)
+        {
+            <div class="col-lg-6 col-xxl-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #3b82f6 !important; transition: all 0.3s ease;" 
+                     onmouseover="this.style.boxShadow='0 10px 25px rgba(59, 130, 246, 0.15)'; this.style.transform='translateY(-3px)'" 
+                     onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'; this.style.transform='translateY(0)'">
+
+                    <div class="card-header bg-white border-bottom" style="border-color: #e5e7eb;">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-1 fw-bold" style="color: #1e3a8a;">@cupResult.CupName</h5>
+                                <small class="text-muted">@cupResult.CupYear</small>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge text-white fs-6 p-3" style="background-color: #3b82f6;">
+                                    <i class="fas fa-medal me-2"></i>@cupResult.Position º
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-4 pb-3 border-bottom" style="border-color: #e5e7eb;">
+                            <small class="text-muted d-block mb-1">
+                                TIME
+                            </small>
+                            <h6 class="mb-0" style="color: #1e3a8a; font-size: 1.1rem;">@cupResult.TeamName</h6>
+                        </div>
+
+                        <div class="text-center mb-4 p-4" style="background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); border-radius: 8px; border: 1px solid #bfdbfe;">
+                            <small class="text-muted d-block mb-2 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                Sua Pontuação Total
+                            </small>
+                            <h2 class="mb-0 fw-bold" style="color: #3b82f6; font-size: 2.5rem;">@cupResult.TotalScore</h2>
+                        </div>
+
+                        <div class="mb-4">
+                            <small class="text-muted d-block mb-2 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; color: #1e3a8a;">
+                                <i class="fas fa-car me-1"></i>Quantidade de Veículos
+                            </small>
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <div class="text-center p-2" style="background: #f0f9ff; border-radius: 6px; border: 1px solid #bfdbfe;">
+                                        <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                        </small>
+                                        <span class="fw-bold" style="color: #0284c7; font-size: 1.25rem;">@cupResult.Kombi</span>
+                                        <small class="d-block text-muted" style="font-size: 0.7rem;">Kombi</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="text-center p-2" style="background: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0;">
+                                        <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                            <i class="fas fa-car" style="color: #16a34a;"></i>
+                                        </small>
+                                        <span class="fw-bold" style="color: #16a34a; font-size: 1.25rem;">@cupResult.Fusca</span>
+                                        <small class="d-block text-muted" style="font-size: 0.7rem;">Fusca</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="text-center p-2" style="background: #fef2f2; border-radius: 6px; border: 1px solid #fecaca;">
+                                        <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                            <i class="fas fa-bug" style="color: #dc2626;"></i>
+                                        </small>
+                                        <span class="fw-bold" style="color: #dc2626; font-size: 1.25rem;">@cupResult.NewBeetle</span>
+                                        <small class="d-block text-muted" style="font-size: 0.7rem;">New Beetle</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; border-left: 3px solid #cbd5e1;">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1" style="color: #64748b;"></i>
+                                Registrado no sistema em <strong>@cupResult.GeneratedAt.ToString("dd/MM/yyyy HH:mm")</strong>
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a asp-action="GenerateCupCertificates" asp-controller="Docs" asp-route-cupId="@cupResult.CupId" target="_blank" class="btn btn-primary" style="background-color: #3b82f6; border-color: #3b82f6;">
+                                <i class="fas fa-certificate me-2"></i>Baixar Certificado
+                            </a>
+                            <a asp-action="CupScores" asp-controller="Score" asp-route-cupId="@cupResult.CupId" class="btn btn-outline-primary" style="color: #3b82f6; border-color: #3b82f6;">
+                                <i class="fas fa-chart-bar me-2"></i>Ver Detalhes da Copa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <a href="@Url.Action("PlayerArea", "Home")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar para a Área do Competidor
+            </a>
+        </div>
+    </div>
+</div>
