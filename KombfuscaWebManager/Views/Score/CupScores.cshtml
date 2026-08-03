@@ -2,6 +2,7 @@
 @model List<MyScoreViewModel>
 
 @{
+    ViewData["Title"] = "Pontuações da Copa";
     var firstResult = Model.FirstOrDefault();
     var orderedScores = Model.OrderBy(m => m.Position).ToList();
 }

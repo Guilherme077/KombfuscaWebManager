@@ -1,4 +1,5 @@
-﻿@model IEnumerable<KombfuscaWebManager.Models.CupModels.Cup>
+﻿@using KombfuscaWebManager.Models.SystemModels.ViewModels
+@model PlayerAreaViewModel
 @{
     ViewData["Title"] = "Área do Competidor";
 }
@@ -222,11 +223,11 @@
             <div class="col-md-4">
                 <div class="stats-container">
                     <div class="stat-box">
-                        <div class="stat-value">10</div>
+                        <div class="stat-value">@Model.Victory</div>
                         <div class="stat-label">Vitórias em Copas</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value">10</div>
+                        <div class="stat-value">@Model.CupNumbers</div>
                         <div class="stat-label">Copas jogadas</div>
                     </div>
                 </div>
@@ -237,7 +238,7 @@
     <section class="mb-5">
         <h2 class="section-title">Acesso Rápido</h2>
         <div class="row g-4">
-            @foreach(var cup in Model)
+            @foreach(var cup in Model.CupsToSubscription)
             {
                 <div class="col-lg-3 col-md-6">
                     <div class="card action-card">
@@ -290,56 +291,30 @@
 
     <section class="mb-5">
         <h2 class="section-title">Copas que você participou</h2>
+        
         <div class="info-grid">
-            <div class="card action-card">
-                <div class="card-body">
-                    <h5 class="card-title">Kombfusca Cup 2025</h5>
-                    <p class="text-muted">Finalizada - 12 etapas</p>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span>Seu Resultado:</span>
-                            <strong style="color: #f5576c; font-size: 1.1rem;">2º 🥈</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Pontos:</span>
-                            <strong>587 pts</strong>
+            @foreach (var cup in Model.UserCups)
+            {
+                <div class="card action-card">
+                    <div class="card-body">
+                        <h5 class="card-title">@cup.CupName</h5>
+                        <p class="text-muted">@cup.TeamName - @cup.CupYear</p>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Seu Resultado:</span>
+                                <strong style="color: #f5576c; font-size: 1.1rem;">@cup.Position</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Pontos:</span>
+                                <strong>@cup.TotalScore pts</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+            
 
-            <div class="card action-card">
-                <div class="card-body">
-                    <h5 class="card-title">Grand Prix Challenge 2024</h5>
-                    <p class="text-muted">Finalizada - 8 etapas</p>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span>Seu Resultado:</span>
-                            <strong style="color: #f5d547; font-size: 1.1rem;">1º 🥇</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Pontos:</span>
-                            <strong>612 pts</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card action-card">
-                <div class="card-body">
-                    <h5 class="card-title">Serie Cup 2024</h5>
-                    <p class="text-muted">Finalizada - 6 etapas</p>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span>Seu Resultado:</span>
-                            <strong style="color: #cd7f32; font-size: 1.1rem;">3º 🥉</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Pontos:</span>
-                            <strong>521 pts</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
         </div>
 
     </section>
