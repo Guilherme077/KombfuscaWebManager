@@ -76,6 +76,15 @@ public class RegisterModel : PageModel
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [Required]
+        [Display(Name = "Nome Completo")]
+        [StringLength(100, ErrorMessage = "O {0} deve ter no máximo {1} caracteres.")]
+        public string FullName { get; set; } = default!;
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; } = default!;
@@ -117,6 +126,8 @@ public class RegisterModel : PageModel
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            user.FullName = Input.FullName;
+
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if (result.Succeeded)

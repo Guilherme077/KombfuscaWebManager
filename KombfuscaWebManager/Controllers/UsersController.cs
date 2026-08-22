@@ -36,6 +36,7 @@ namespace KombfuscaWebManager.Controllers
             {
                 UserId = user.Id,
                 UserName = user.UserName!,
+                FullName = user.FullName,
 
                 Admin = roles.Contains(Roles.Admin),
                 ScoreCounter = roles.Contains(Roles.ScoreCounter),

@@ -1,7 +1,7 @@
 ﻿@using KombfuscaWebManager.Models.UsersModels.ViewModels
 @model EditRolesViewModel
 
-<h2>@Model.UserName</h2>
+<h2>@(Model.FullName ?? Model.UserName)</h2>
 
 <form asp-action="EditRoles" method="post">
 

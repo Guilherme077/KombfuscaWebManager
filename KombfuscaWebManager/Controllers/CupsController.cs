@@ -197,7 +197,7 @@ namespace KombfuscaWebManager.Controllers
                 .Select(u => new UserAssignmentViewModel
                 {
                     UserId = u.Id,
-                    UserName = u.UserName ?? string.Empty,
+                    UserName = u.FullName ?? string.Empty,
                     UserEmail = u.Email ?? string.Empty,
                     IsAssigned = assignedUserIds.Contains(u.Id)
                 })

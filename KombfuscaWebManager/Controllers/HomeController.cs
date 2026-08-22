@@ -4,6 +4,7 @@ using KombfuscaWebManager.Models.CupModels;
 using KombfuscaWebManager.Models.CupModels.ViewModels;
 using KombfuscaWebManager.Models.SystemModels.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -15,11 +16,16 @@ namespace KombfuscaWebManager.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(
+            ILogger<HomeController> logger,
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -42,6 +48,8 @@ namespace KombfuscaWebManager.Controllers
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null) return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId);
 
             var cupsToSub = await _context.Cups.Where(c => c.cupStatus == CupStatus.openSubscriptions).ToListAsync();
             var cupsParticipated = await _context.CupResults.Where(c => c.UserId == userId).ToListAsync();
@@ -66,6 +74,7 @@ namespace KombfuscaWebManager.Controllers
 
             var vm = new PlayerAreaViewModel()
             {
+                UserFullName = user?.FullName ?? user?.UserName,
                 Victory = numberVictory,
                 CupNumbers = numberCups,
                 UserCups = userCups,
@@ -74,13 +83,17 @@ namespace KombfuscaWebManager.Controllers
 
             return View(vm);
         }
-        public IActionResult ScoreCounterArea()
+        public async Task<IActionResult> ScoreCounterArea()
         {
+            var user = await _userManager.GetUserAsync(User);
+            ViewBag.UserFullName = user?.FullName ?? user?.UserName;
             return View();
         }
         [Authorize(Roles = Roles.Admin)]
-        public IActionResult AdminArea()
+        public async Task<IActionResult> AdminArea()
         {
+            var user = await _userManager.GetUserAsync(User);
+            ViewBag.UserFullName = user?.FullName ?? user?.UserName;
             return View();
         }
     }

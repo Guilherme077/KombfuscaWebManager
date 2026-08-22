@@ -3,11 +3,12 @@
 }
 
 <div class="text-center">
-    <h1 class="display-6">Área do Contador de Pontos</h1>
+    <h1 class="display-6">Bem-vindo @ViewBag.UserFullName!</h1>
+    <p>Área do Contador de Pontos</p>
     <p>Envie as pontuações da copa.</p>
     <div class="d-flex flex-column mb-3">
         <a asp-controller="Score" asp-action="Index">Enviar pontuação</a>
         <a asp-controller="Score" asp-action="Conflicts">Verificar conflitos</a>
     </div>
-    
+
 </div>

@@ -4,6 +4,7 @@ using KombfuscaWebManager.Models.CupModels.ViewModels;
 using KombfuscaWebManager.Services;
 using KombfuscaWebManager.Services.dto;
 using KombfuscaWebManager.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -17,12 +18,18 @@ namespace KombfuscaWebManager.Controllers
         public ScoreService scoreService;
         private readonly ApplicationDbContext _context;
         private readonly HttpClient _httpClient;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ScoreController(ScoreService _scoreService, ApplicationDbContext context, HttpClient httpClient)
+        public ScoreController(
+            ScoreService _scoreService,
+            ApplicationDbContext context,
+            HttpClient httpClient,
+            UserManager<ApplicationUser> userManager)
         {
             scoreService = _scoreService;
             _context = context;
             _httpClient = httpClient;
+            _userManager = userManager;
         }
         
         public async Task<IActionResult> Index()
@@ -284,6 +291,7 @@ namespace KombfuscaWebManager.Controllers
 
             if (userId == null) return Unauthorized();
 
+            var user = await _userManager.FindByIdAsync(userId);
             var cupResults = await _context.CupResults.Where(c => c.UserId == userId).ToListAsync();
 
             var myScores = new List<MyScoreViewModel>();
@@ -295,6 +303,7 @@ namespace KombfuscaWebManager.Controllers
                 myScores.Add(new MyScoreViewModel
                 {
                     UserName = User.Identity?.Name ?? "",
+                    FullName = user?.FullName,
                     TeamName = cupResult.TeamName,
                     TotalScore = cupResult.TotalScore,
                     Kombi = cupResult.QtdKombi,
@@ -328,6 +337,7 @@ namespace KombfuscaWebManager.Controllers
                 scores.Add(new MyScoreViewModel
                 {
                     UserName = user.UserName ?? "",
+                    FullName = user.FullName,
                     TeamName = cupResult.TeamName,
                     TotalScore = cupResult.TotalScore,
                     Kombi = cupResult.QtdKombi,

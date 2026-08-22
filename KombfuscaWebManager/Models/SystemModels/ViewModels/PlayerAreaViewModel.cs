@@ -5,6 +5,7 @@ namespace KombfuscaWebManager.Models.SystemModels.ViewModels
 {
     public class PlayerAreaViewModel
     {
+        public string? UserFullName { get; set; }
         public int Victory { get; set; }
         public int CupNumbers { get; set; }
         public List<MyScoreViewModel> UserCups { get; set; }

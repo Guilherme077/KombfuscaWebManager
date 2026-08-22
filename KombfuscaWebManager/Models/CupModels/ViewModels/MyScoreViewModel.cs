@@ -3,6 +3,7 @@
     public class MyScoreViewModel
     {
         public string UserName { get; set; }
+        public string? FullName { get; set; }
         public string TeamName { get; set; }
         public int TotalScore { get; set; }
         public int Kombi { get; set; }

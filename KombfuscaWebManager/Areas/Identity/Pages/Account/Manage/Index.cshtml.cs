@@ -57,6 +57,15 @@ public class IndexModel : PageModel
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Required]
+        [Display(Name = "Nome Completo")]
+        [StringLength(100)]
+        public string? FullName { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
@@ -71,6 +80,7 @@ public class IndexModel : PageModel
 
         Input = new InputModel
         {
+            FullName = user.FullName,
             PhoneNumber = phoneNumber
         };
     }
@@ -108,6 +118,17 @@ public class IndexModel : PageModel
             if (!setPhoneResult.Succeeded)
             {
                 StatusMessage = "Unexpected error when trying to set phone number.";
+                return RedirectToPage();
+            }
+        }
+
+        if (Input.FullName != user.FullName)
+        {
+            user.FullName = Input.FullName;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                StatusMessage = "Unexpected error when trying to set full name.";
                 return RedirectToPage();
             }
         }

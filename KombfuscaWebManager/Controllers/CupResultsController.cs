@@ -53,7 +53,7 @@ namespace KombfuscaWebManager.Controllers
                 .GroupBy(s => new
                 {
                     s.UserId,
-                    s.User.UserName
+                    s.User.FullName
                 });
 
             foreach (var player in players)
@@ -61,7 +61,7 @@ namespace KombfuscaWebManager.Controllers
                 var vm = new PlayerCupResultViewModel
                 {
                     UserId = player.Key.UserId,
-                    UserName = player.Key.UserName!
+                    UserName = player.Key.FullName!
                 };
 
                 var periods = player.GroupBy(x => new { x.PeriodId, x.Period.Description});

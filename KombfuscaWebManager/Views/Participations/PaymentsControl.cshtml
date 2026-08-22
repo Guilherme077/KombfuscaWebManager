@@ -39,9 +39,10 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 25%;"><i class="fas fa-trophy me-2"></i>Copa</th>
-                                <th style="width: 25%;"><i class="fas fa-users me-2"></i>Time</th>
+                                <th style="width: 20%;"><i class="fas fa-trophy me-2"></i>Copa</th>
+                                <th style="width: 20%;"><i class="fas fa-users me-2"></i>Time</th>
                                 <th style="width: 20%;"><i class="fas fa-user me-2"></i>Participante</th>
+                                <th style="width: 10%;"><i class="fas fa-user me-2"></i>Valor (R$)</th>
                                 <th style="width: 20%;"><i class="fas fa-money-check me-2"></i>Ação</th>
                             </tr>
                         </thead>
@@ -56,7 +57,10 @@
                                         <strong>@participation.TeamName</strong>
                                     </td>
                                     <td>
-                                        <small>@participation.User.UserName</small>
+                                        <small>@participation.User.FullName</small>
+                                    </td>
+                                    <td>
+                                        <small>@participation.Cup.SubscriptionFee</small>
                                     </td>
                                     <td>
                                         <form asp-controller="Participations" asp-action="PaymentsControl" method="post" style="display:inline;" onsubmit="return confirm('Confirmar pagamento de @participation.TeamName?');">

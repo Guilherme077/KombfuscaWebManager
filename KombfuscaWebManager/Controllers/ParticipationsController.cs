@@ -23,6 +23,14 @@ namespace KombfuscaWebManager.Controllers
             _context = context;
         }
 
+        private SelectList GetUserSelectList(string? selectedUserId = null)
+        {
+            var users = _context.Users
+                .Select(u => new { u.Id, DisplayName = u.FullName ?? u.UserName })
+                .ToList();
+            return new SelectList(users, "Id", "DisplayName", selectedUserId);
+        }
+
         // GET: Participations
         public async Task<IActionResult> Index()
         {
@@ -54,7 +62,7 @@ namespace KombfuscaWebManager.Controllers
         public IActionResult Create()
         {
             ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName");
+            ViewData["UserId"] = GetUserSelectList();
             return View();
         }
 
@@ -80,7 +88,7 @@ namespace KombfuscaWebManager.Controllers
             }
 
             ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name", participation.CupId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName", participation.UserId);
+            ViewData["UserId"] = GetUserSelectList(participation.UserId);
             return View(participation);
         }
 
@@ -98,7 +106,7 @@ namespace KombfuscaWebManager.Controllers
                 return NotFound();
             }
             ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name", participation.CupId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName", participation.UserId);
+            ViewData["UserId"] = GetUserSelectList(participation.UserId);
             return View(participation);
         }
 
@@ -140,7 +148,7 @@ namespace KombfuscaWebManager.Controllers
             }
 
             ViewData["CupId"] = new SelectList(_context.Cups, "Id", "Name", participation.CupId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName", participation.UserId);
+            ViewData["UserId"] = GetUserSelectList(participation.UserId);
             return View(participation);
         }
 

@@ -6,6 +6,8 @@
 
         public string UserName { get; set; } = "";
 
+        public string? FullName { get; set; }
+
         public int Fusca { get; set; }
 
         public int Kombi { get; set; }

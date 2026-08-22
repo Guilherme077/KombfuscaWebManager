@@ -3,12 +3,13 @@
 }
 
 <div class="text-center">
-    <h1 class="display-6">Área do Admin</h1>
+    <h1 class="display-6">Bem-vindo @ViewBag.UserFullName!</h1>
+    <p>Área do Admin</p>
     <p>Crie e edite copas, verifique os usuários, atribua permissões.</p>
     <div class="d-flex flex-column mb-3">
         <a asp-controller="Users" asp-action="Index">Atribuir permissões aos usuários</a>
         <a asp-controller="Cups" asp-action="Index">Gerenciar Copas</a>
         <a asp-controller="Participations" asp-action="PaymentsControl">Registrar Pagamentos</a>
     </div>
-    
+
 </div>
