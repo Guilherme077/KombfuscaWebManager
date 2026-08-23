@@ -30,7 +30,8 @@ namespace KombfuscaWebManager.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var cups = _context.Cups.Where(c => (c.cupStatus == CupStatus.openSubscriptions || c.cupStatus == CupStatus.closedSubscriptions) && c.StartDate > DateTime.Now).OrderBy(c => c.StartDate).ToList();
+            return View(cups);
         }
 
         public IActionResult Privacy()
@@ -43,6 +44,7 @@ namespace KombfuscaWebManager.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        [Authorize]
         public async Task<IActionResult> PlayerArea()
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -83,6 +85,7 @@ namespace KombfuscaWebManager.Controllers
 
             return View(vm);
         }
+        [Authorize]
         public async Task<IActionResult> ScoreCounterArea()
         {
             var user = await _userManager.GetUserAsync(User);
