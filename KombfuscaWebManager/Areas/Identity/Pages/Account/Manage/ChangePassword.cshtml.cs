@@ -115,12 +115,20 @@ public class ChangePasswordModel : PageModel
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+
             return Page();
         }
 
+        if (user.MustChangePassword)
+        {
+            user.MustChangePassword = false;
+            await _userManager.UpdateAsync(user);
+        }
+
         await _signInManager.RefreshSignInAsync(user);
+
         _logger.LogInformation("User changed their password successfully.");
-        StatusMessage = "Your password has been changed.";
+        StatusMessage = "Sua senha foi alterada com sucesso.";
 
         return RedirectToPage();
     }

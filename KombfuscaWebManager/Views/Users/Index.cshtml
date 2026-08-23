@@ -18,6 +18,22 @@
                 Atribuições
             </a>
         </td>
+        <td>
+                <form asp-controller="Users"
+                      asp-action="ResetPassword"
+                      method="post"
+                      style="display:inline">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@user.Id" />
+
+                    <button type="submit"
+                            class="btn btn-warning">
+                        Redefinir senha
+                    </button>
+                </form>
+        </td>
     </tr>
 }
 

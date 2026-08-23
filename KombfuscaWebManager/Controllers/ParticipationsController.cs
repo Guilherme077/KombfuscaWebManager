@@ -331,7 +331,8 @@ namespace KombfuscaWebManager.Controllers
                 EndDate = cup.EndDate,
                 Year = cup.Year,
                 SubscriptionFee = cup.SubscriptionFee,
-                SubscriptionFeePayed = participation.SubscriptionFeePayed
+                SubscriptionFeePayed = participation.SubscriptionFeePayed,
+                TeamName = participation.TeamName
             };
 
             return View(model);

@@ -10,6 +10,8 @@ public class ApplicationUser : IdentityUser
     [Display(Name = "Nome Completo")]
     public string? FullName { get; set; }
 
+    public bool MustChangePassword { get; set; }
+
     public ICollection<ScoreSheet> ScoreSheets { get; set; }
         = new List<ScoreSheet>();
 
