@@ -2,14 +2,75 @@
     ViewData["Title"] = "Admin Area";
 }
 
-<div class="text-center">
-    <h1 class="display-6">Bem-vindo @ViewBag.UserFullName!</h1>
-    <p>Área do Admin</p>
-    <p>Crie e edite copas, verifique os usuários, atribua permissões.</p>
-    <div class="d-flex flex-column mb-3">
-        <a asp-controller="Users" asp-action="Index">Atribuir permissões aos usuários</a>
-        <a asp-controller="Cups" asp-action="Index">Gerenciar Copas</a>
-        <a asp-controller="Participations" asp-action="PaymentsControl">Registrar Pagamentos</a>
+<div class="bg-primary bg-gradient text-white text-center py-5 mb-4 rounded-3 shadow">
+    <div class="container">
+        <h1 class="display-6 fw-bold">Bem-vindo, @ViewBag.UserFullName!</h1>
+        <p class="lead text-light mb-0">Área do Admin</p>
+    </div>
+</div>
+
+<div class="container">
+
+    <p class="text-secondary text-center mb-4">
+        Crie e edite copas, verifique os usuários e atribua permissões.
+    </p>
+
+    <div class="row g-4 justify-content-center">
+
+        <div class="col-md-6 col-lg-4">
+            <a asp-controller="Users" asp-action="Index" class="text-decoration-none">
+                <div class="card h-100 border-secondary-subtle shadow-sm admin-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-people-fill fs-1 text-primary mb-3 d-block"></i>
+                        <h5 class="card-title text-primary-emphasis fw-semibold">Usuários</h5>
+                        <p class="card-text text-secondary small">Atribuir permissões aos usuários</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a asp-controller="Cups" asp-action="Index" class="text-decoration-none">
+                <div class="card h-100 border-secondary-subtle shadow-sm admin-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-trophy-fill fs-1 text-primary mb-3 d-block"></i>
+                        <h5 class="card-title text-primary-emphasis fw-semibold">Copas</h5>
+                        <p class="card-text text-secondary small">Gerenciar copas do Kombfusca</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a asp-controller="Participations" asp-action="PaymentsControl" class="text-decoration-none">
+                <div class="card h-100 border-secondary-subtle shadow-sm admin-card">
+                    <div class="card-body text-center py-4">
+                        <i class="bi bi-cash-coin fs-1 text-primary mb-3 d-block"></i>
+                        <h5 class="card-title text-primary-emphasis fw-semibold">Pagamentos</h5>
+                        <p class="card-text text-secondary small">Registrar pagamentos das participações</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-5">
+        <span class="badge bg-light text-secondary border">
+            <i class="bi bi-clock me-1"></i> Hora do Servidor: @DateTime.Now
+        </span>
     </div>
 
 </div>
+
+<style>
+    .admin-card {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .admin-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.5rem 1rem rgba(13, 60, 97, 0.15) !important;
+            border-color: var(--bs-primary) !important;
+        }
+</style>
