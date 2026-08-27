@@ -1,4 +1,5 @@
-﻿@model KombfuscaWebManager.Models.CupModels.ViewModels.RegisterCupResultViewModel
+﻿@using KombfuscaWebManager.Models.CupModels.ViewModels
+@model KombfuscaWebManager.Models.CupModels.ViewModels.RegisterCupResultViewModel
 
 @{
     ViewData["Title"] = "Registrar Resultado da Copa";
@@ -32,10 +33,27 @@
     {
         <div class="alert alert-success shadow-sm">
 
-            <h5 class="mb-0"> Nenhuma divergência encontrada. Pontuações prontas para confirmação. </h5>
+            <h5 class="mb-0"> Nenhuma divergência encontrada. </h5>
 
         </div>
     }
+
+    <div class="alert alert-info shadow-sm">
+
+        <h4> Situação do envio das Folhas de Controle </h4>
+        @foreach (var periodRegisterStatus in Model.PeriodsRegisterStatus)
+        {
+            if (periodRegisterStatus.Status == PeriodRegisterStatus.Registered)
+            {
+                <p class="mb-0"> @periodRegisterStatus.CounterName - @periodRegisterStatus.PeriodDescription: <strong class="text-success">REGISTRADO</strong> </p>
+            }
+            else
+            {
+                <p class="mb-0"> @periodRegisterStatus.CounterName - @periodRegisterStatus.PeriodDescription: <strong class="text-danger">PENDENTE</strong> </p>
+            }
+        }
+        
+    </div>
 
     <form asp-action="Register" method="post" id="registerForm">
 

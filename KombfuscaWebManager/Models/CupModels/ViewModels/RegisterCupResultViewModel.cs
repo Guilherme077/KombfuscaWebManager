@@ -11,5 +11,21 @@
 
         public List<PlayerCupResultViewModel> Players { get; set; }
             = new();
+
+        public List<PeriodsRegisterStatusViewModel> PeriodsRegisterStatus { get; set; }
+            = new();
+    }
+
+    public class PeriodsRegisterStatusViewModel
+    {
+        public string PeriodDescription { get; set; }
+        public string CounterName { get; set; }
+        public PeriodRegisterStatus Status { get; set; }
+    }
+
+    public enum PeriodRegisterStatus
+    {
+        Registered,
+        NotRegistered
     }
 }

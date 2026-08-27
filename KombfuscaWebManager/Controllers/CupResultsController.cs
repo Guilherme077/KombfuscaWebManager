@@ -43,6 +43,10 @@ namespace KombfuscaWebManager.Controllers
                 .Where(s => s.Period.CopaId == cupId)
                 .ToListAsync();
 
+            var periodsScoreSheets = cup.Periods.ToList();
+
+            var scoreCounters = await _context.CupAssignments.Where(c => c.CupId == cupId).Include(c => c.User).ToListAsync();
+
             var model = new RegisterCupResultViewModel
             {
                 CupId = cupId,
@@ -113,6 +117,25 @@ namespace KombfuscaWebManager.Controllers
                 }
 
                 model.Players.Add(vm);
+            }
+            
+            foreach (var period in periodsScoreSheets)
+            {
+                foreach (var counter in scoreCounters)
+                {
+                    var periodStatus = new PeriodsRegisterStatusViewModel
+                    {
+                        PeriodDescription = period.Description!,
+                        CounterName = counter.User.FullName!,
+                        Status = PeriodRegisterStatus.NotRegistered
+                    };
+                    if (scores.Any(s => s.PeriodId == period.Id && s.UserId == counter.UserId))
+                    {
+                        periodStatus.Status = PeriodRegisterStatus.Registered;
+                    }
+                    model.PeriodsRegisterStatus.Add(periodStatus);
+                }
+                
             }
 
             return View(model);
