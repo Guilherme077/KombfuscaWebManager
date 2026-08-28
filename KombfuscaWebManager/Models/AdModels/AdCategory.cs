@@ -6,6 +6,6 @@
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int MaxAds { get; set; }
-        public int MinValue { get; set; }
+        public double MinValue { get; set; }
     }
 }

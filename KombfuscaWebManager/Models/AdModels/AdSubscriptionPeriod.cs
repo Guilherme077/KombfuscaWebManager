@@ -12,6 +12,6 @@ namespace KombfuscaWebManager.Models.AdModels
         public DateTime StartAuction { get; set; }
         public DateTime EndAuction { get; set; }
         public DateTime SituationReviewDate { get; set; } //Date when the situation of the ads will be reviewed and the winners will be announced
-        List<AdCategory> Categories { get; set; } = new List<AdCategory>();
+        public List<AdCategory> Categories { get; set; } = new List<AdCategory>();
     }
 }

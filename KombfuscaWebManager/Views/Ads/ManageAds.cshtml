@@ -1,0 +1,409 @@
+﻿
+@using KombfuscaWebManager.Models.AdModels
+@model IEnumerable<AdSubscriptionPeriod>
+
+@{
+    ViewData["Title"] = "Administrar anúncios";
+}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold text-primary mb-1">Administrar anúncios das copas</h2>
+        <p class="text-muted mb-0">
+            Configure períodos de inscrição, leilões e categorias de anúncios.
+        </p>
+    </div>
+
+    <div class="row g-4 mb-5">
+
+        <!-- Criar período -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        Novo período de anúncios
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="CreateAdPeriod"
+                          asp-controller="Ads"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Período de inscrição
+                            </label>
+
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">
+                                        Início
+                                    </label>
+                                    <input type="date"
+                                           name="startSubscription"
+                                           class="form-control"
+                                           required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">
+                                        Fim
+                                    </label>
+                                    <input type="date"
+                                           name="endSubscription"
+                                           class="form-control"
+                                           required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Liberação do resultado das inscrições
+                            </label>
+
+                            <input type="date"
+                                   name="situationReviewDate"
+                                   class="form-control"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Período de leilão
+                            </label>
+
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">
+                                        Início
+                                    </label>
+                                    <input type="date"
+                                           name="startAuction"
+                                           class="form-control"
+                                           required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">
+                                        Fim
+                                    </label>
+                                    <input type="date"
+                                           name="endAuction"
+                                           class="form-control"
+                                           required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-primary small mb-4">
+                            <div>
+                                O período de anúncios será vinculado automaticamente
+                                à copa mais recente.
+                            </div>
+
+                            <div class="mt-1">
+                                Lembre-se de analisar as inscrições antes da data
+                                de liberação dos resultados.
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Criar novo período
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Criar categoria -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        Nova categoria de anúncio
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="CreatePeriodCategory"
+                          asp-controller="Ads"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Nome da categoria
+                            </label>
+
+                            <input type="text"
+                                   name="name"
+                                   class="form-control"
+                                   placeholder="Ex.: Patrocinador Ouro"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Descrição
+                            </label>
+
+                            <textarea name="description"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Descreva o que está incluso nesta categoria..."
+                                      required></textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Máximo de anúncios
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       name="maxAds"
+                                       class="form-control"
+                                       required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Lance mínimo
+                                </label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+
+                                    <input type="text"
+                                           name="minValue"
+                                           class="form-control"
+                                           placeholder="0,00"
+                                           required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Copa
+                            </label>
+
+                            <select name="adPeriodId"
+                                    class="form-select"
+                                    required>
+
+                                <option value="" selected disabled>
+                                    Selecione um período
+                                </option>
+
+                                @foreach (var adPeriod in Model)
+                                {
+                                    <option value="@adPeriod.Id">
+                                        @adPeriod.Cup.Name
+                                    </option>
+                                }
+
+                            </select>
+
+                            <div class="form-text">
+                                Selecione a copa à qual a categoria será vinculada.
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Criar categoria
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Períodos cadastrados -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h4 class="fw-bold mb-1">Períodos cadastrados</h4>
+            <p class="text-muted mb-0">
+                Consulte os períodos e categorias configurados.
+            </p>
+        </div>
+
+        <span class="badge bg-primary rounded-pill fs-6">
+            @Model.Count()
+        </span>
+    </div>
+
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light border text-center py-4">
+            <h5 class="mb-1">Nenhum período cadastrado</h5>
+            <p class="text-muted mb-0">
+                Crie o primeiro período usando o formulário acima.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var adPeriod in Model)
+            {
+                <div class="col-12">
+
+                    <div class="card shadow-sm border-0">
+
+                        <div class="card-header bg-light border-0 py-3">
+                            <div class="d-flex flex-wrap
+                                justify-content-between
+                                align-items-center
+                                gap-2">
+
+                                <div>
+                                    <h5 class="mb-1 text-primary fw-bold">
+                                        @adPeriod.Cup.Name
+                                    </h5>
+
+                                    <span class="text-muted small">
+                                        Período de anúncios
+                                    </span>
+                                </div>
+
+                                <a asp-action="EditAdPeriod"
+                                   asp-route-id="@adPeriod.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Editar período
+                                </a>
+
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4">
+
+                            <div class="row g-3 mb-4">
+
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 h-100">
+                                        <small class="text-muted d-block mb-1">
+                                            Inscrições
+                                        </small>
+
+                                        <strong>
+                                            @adPeriod.StartSubscription.ToString("dd/MM/yyyy")
+                                            -
+                                            @adPeriod.EndSubscription.ToString("dd/MM/yyyy")
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 h-100">
+                                        <small class="text-muted d-block mb-1">
+                                            Resultado das inscrições
+                                        </small>
+
+                                        <strong>
+                                            @adPeriod.SituationReviewDate.ToString("dd/MM/yyyy")
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 h-100">
+                                        <small class="text-muted d-block mb-1">
+                                            Leilão
+                                        </small>
+
+                                        <strong>
+                                            @adPeriod.StartAuction.ToString("dd/MM/yyyy")
+                                            -
+                                            @adPeriod.EndAuction.ToString("dd/MM/yyyy")
+                                        </strong>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <h6 class="fw-bold mb-3">
+                                Categorias de anúncio
+                            </h6>
+
+                            @if (adPeriod.Categories == null ||
+                                 !adPeriod.Categories.Any())
+                            {
+                                <div class="text-muted small">
+                                    Nenhuma categoria cadastrada para este período.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+
+                                    <table class="table table-hover align-middle mb-0">
+
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th>Descrição</th>
+                                                <th class="text-center">
+                                                    Máx. anúncios
+                                                </th>
+                                                <th class="text-end">
+                                                    Lance mínimo
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+
+                                            @foreach (var category in adPeriod.Categories)
+                                            {
+                                                <tr>
+                                                    <td class="fw-semibold text-primary">
+                                                        @category.Name
+                                                    </td>
+
+                                                    <td>
+                                                        @category.Description
+                                                    </td>
+
+                                                    <td class="text-center">
+                                                        <span class="badge bg-light text-dark border">
+                                                            @category.MaxAds
+                                                        </span>
+                                                    </td>
+
+                                                    <td class="text-end fw-semibold">
+                                                        @category.MinValue.ToString("C")
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

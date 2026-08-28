@@ -2,7 +2,9 @@ using KombfuscaWebManager.Data;
 using KombfuscaWebManager.Models;
 using KombfuscaWebManager.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<ScoreService>();
 
 var app = builder.Build();
+
+
+var supportedCultures = new[]
+{
+    new CultureInfo("pt-BR")
+};
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("pt-BR"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

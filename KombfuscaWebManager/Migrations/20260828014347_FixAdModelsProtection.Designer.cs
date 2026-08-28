@@ -3,6 +3,7 @@ using System;
 using KombfuscaWebManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KombfuscaWebManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260828014347_FixAdModelsProtection")]
+    partial class FixAdModelsProtection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,8 +38,8 @@ namespace KombfuscaWebManager.Migrations
                     b.Property<int>("MaxAds")
                         .HasColumnType("int");
 
-                    b.Property<double>("MinValue")
-                        .HasColumnType("double");
+                    b.Property<int>("MinValue")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
