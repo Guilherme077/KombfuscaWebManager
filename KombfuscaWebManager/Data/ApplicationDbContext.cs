@@ -1,5 +1,6 @@
 ﻿using Azure;
 using KombfuscaWebManager.Models;
+using KombfuscaWebManager.Models.AdModels;
 using KombfuscaWebManager.Models.CupModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,14 @@ namespace KombfuscaWebManager.Data
         public DbSet<CupAssignment> CupAssignments { get; set; }
 
         public DbSet<CupResult> CupResults { get; set; }
+
+        public DbSet<AdRequest> AdRequests { get; set; }
+
+        public DbSet<AdCategory> AdCategories { get; set; }
+        
+        public DbSet<AdSubscriptionPeriod> AdSubscriptionPeriods { get; set; }
+
+        public DbSet<AuctionBid> AuctionBids { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
