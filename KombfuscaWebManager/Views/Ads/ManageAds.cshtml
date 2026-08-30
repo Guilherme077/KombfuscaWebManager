@@ -17,11 +17,12 @@
 
     <div class="row g-4 mb-5">
 
-        <!-- Criar período -->
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-primary text-white py-3">
+                    
                     <h5 class="mb-0">
+                        <i class="bi bi-calendar-week fs-5 text-light mb-2"></i>
                         Novo período de anúncios
                     </h5>
                 </div>
@@ -30,6 +31,8 @@
                     <form asp-action="CreateAdPeriod"
                           asp-controller="Ads"
                           method="post">
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
@@ -43,6 +46,7 @@
                                     </label>
                                     <input type="date"
                                            name="startSubscription"
+                                           value="@ViewData["StartSubscription"]"
                                            class="form-control"
                                            required />
                                 </div>
@@ -53,6 +57,7 @@
                                     </label>
                                     <input type="date"
                                            name="endSubscription"
+                                           value="@ViewData["EndSubscription"]"
                                            class="form-control"
                                            required />
                                 </div>
@@ -66,6 +71,7 @@
 
                             <input type="date"
                                    name="situationReviewDate"
+                                   value="@ViewData["SituationReviewDate"]"
                                    class="form-control"
                                    required />
                         </div>
@@ -82,6 +88,7 @@
                                     </label>
                                     <input type="date"
                                            name="startAuction"
+                                           value="@ViewData["StartAuction"]"
                                            class="form-control"
                                            required />
                                 </div>
@@ -92,6 +99,7 @@
                                     </label>
                                     <input type="date"
                                            name="endAuction"
+                                           value="@ViewData["EndAuction"]"
                                            class="form-control"
                                            required />
                                 </div>
@@ -121,11 +129,11 @@
         </div>
 
 
-        <!-- Criar categoria -->
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-primary text-white py-3">
                     <h5 class="mb-0">
+                        <i class="bi bi-bookmark-plus fs-5 text-light mb-2"></i>
                         Nova categoria de anúncio
                     </h5>
                 </div>
@@ -212,7 +220,7 @@
                             </select>
 
                             <div class="form-text">
-                                Selecione a copa à qual a categoria será vinculada.
+                                Selecione a copa à qual a categoria será vinculada.<br /> Os lances serão atribuidos primeiro para as categorias com maior lance mínimo, se o lance cumprir os requisitos.
                             </div>
                         </div>
 
@@ -229,7 +237,6 @@
     </div>
 
 
-    <!-- Períodos cadastrados -->
     <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
             <h4 class="fw-bold mb-1">Períodos cadastrados</h4>
