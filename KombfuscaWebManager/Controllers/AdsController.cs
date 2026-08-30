@@ -148,9 +148,100 @@ namespace KombfuscaWebManager.Controllers
 
         [Authorize(Roles = Roles.Admin)]
         [HttpGet]
-        public IActionResult EditAdPeriod(int id)
+        public async Task<IActionResult> EditAdPeriod(int id)
         {
-            return View();
+            var adPeriod = await _context.AdSubscriptionPeriods
+                .Include(p => p.Cup)
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (adPeriod == null) return NotFound();
+
+            return View(adPeriod);
+        }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAdPeriod(int id, AdSubscriptionPeriod updatedPeriod)
+        {
+            var adPeriod = await _context.AdSubscriptionPeriods
+                .Include(p => p.Cup)
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (adPeriod == null) return NotFound();
+
+            var hasInvalidDate = false;
+
+            if (updatedPeriod.EndSubscription <= updatedPeriod.StartSubscription)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "A data final das inscrições deve ser posterior à data inicial.");
+                hasInvalidDate = true;
+            }
+
+            if (updatedPeriod.SituationReviewDate <= updatedPeriod.EndSubscription)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "A data de liberação dos resultados de inscrições deve ser posterior ao final das inscrições.");
+                hasInvalidDate = true;
+            }
+
+            if (updatedPeriod.StartAuction <= updatedPeriod.SituationReviewDate)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "O período de leilão deve ser posterior à data de liberação de resultados.");
+                hasInvalidDate = true;
+            }
+
+            if (updatedPeriod.EndAuction <= updatedPeriod.StartAuction)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "A data final do leilão deve ser posterior à data inicial.");
+                hasInvalidDate = true;
+            }
+
+            if (hasInvalidDate)
+            {
+                updatedPeriod.Id = adPeriod.Id;
+                updatedPeriod.Cup = adPeriod.Cup;
+                return View(updatedPeriod);
+            }
+
+            adPeriod.StartSubscription = updatedPeriod.StartSubscription;
+            adPeriod.EndSubscription = updatedPeriod.EndSubscription;
+            adPeriod.SituationReviewDate = updatedPeriod.SituationReviewDate;
+            adPeriod.StartAuction = updatedPeriod.StartAuction;
+            adPeriod.EndAuction = updatedPeriod.EndAuction;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ManageAds));
+        }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPeriodCategory(int periodId, int categoryId, AdCategory updatedCategory)
+        {
+            var adPeriod = await _context.AdSubscriptionPeriods
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == periodId);
+
+            if (adPeriod == null) return NotFound();
+
+            var category = adPeriod.Categories.FirstOrDefault(c => c.Id == categoryId);
+            if (category == null) return NotFound();
+
+            category.Name = updatedCategory.Name;
+            category.Description = updatedCategory.Description;
+            category.MaxAds = updatedCategory.MaxAds;
+            category.MinValue = updatedCategory.MinValue;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(EditAdPeriod), new { id = periodId });
         }
     }
 }

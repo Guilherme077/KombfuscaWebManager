@@ -1,5 +1,111 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@using KombfuscaWebManager.Models.AdModels
+@model AdSubscriptionPeriod
+
 @{
+    ViewData["Title"] = "Editar período de anúncios";
 }
+
+<div class="container py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-primary mb-1">Editar período de anúncios</h2>
+        <p class="text-muted mb-0">Copa vinculada: @Model.Cup.Name</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form asp-action="EditAdPeriod" asp-route-id="@Model.Id" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Período de inscrição</label>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label asp-for="StartSubscription" class="form-label small text-muted">Início</label>
+                                    <input asp-for="StartSubscription" type="date" class="form-control" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="EndSubscription" class="form-label small text-muted">Fim</label>
+                                    <input asp-for="EndSubscription" type="date" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SituationReviewDate" class="form-label fw-semibold">Liberação do resultado das inscrições</label>
+                            <input asp-for="SituationReviewDate" type="date" class="form-control" required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Período de leilão</label>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label asp-for="StartAuction" class="form-label small text-muted">Início</label>
+                                    <input asp-for="StartAuction" type="date" class="form-control" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="EndAuction" class="form-label small text-muted">Fim</label>
+                                    <input asp-for="EndAuction" type="date" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="ManageAds" class="btn btn-outline-secondary flex-fill">Cancelar</a>
+                            <button type="submit" class="btn btn-primary flex-fill">Salvar alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">Categorias de anúncio</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (!Model.Categories.Any())
+                    {
+                        <p class="text-muted mb-0">Nenhuma categoria cadastrada para este período.</p>
+                    }
+                    else
+                    {
+                        @foreach (var category in Model.Categories)
+                        {
+                            <form asp-action="EditPeriodCategory"
+                                  asp-route-periodId="@Model.Id"
+                                  asp-route-categoryId="@category.Id"
+                                  method="post"
+                                  class="border rounded p-3 mb-3">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Nome da categoria</label>
+                                    <input type="text" name="name" value="@category.Name" class="form-control" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Descrição</label>
+                                    <textarea name="description" class="form-control" rows="3" required>@category.Description</textarea>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Máximo de anúncios</label>
+                                        <input type="number" name="maxAds" value="@category.MaxAds" min="0" class="form-control" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Lance mínimo</label>
+                                        <input type="text" name="minValue" value="@category.MinValue" class="form-control" required />
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-outline-primary w-100">Salvar categoria</button>
+                            </form>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
