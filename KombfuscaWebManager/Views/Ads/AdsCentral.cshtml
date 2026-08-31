@@ -67,6 +67,19 @@
                 Enviar inscrição de anúncio
             </button>
         </form>
+
+        <div>
+            <h4>Suas inscrições</h4>
+            @foreach(var request in Model.UserAdRequest)
+            {
+                <div>
+                    <p>
+                        @request.BrandName - @request.RequestedAt.ToString("dd/MM/yyyy HH:mm") - Análise Pendente -
+                        <a asp-action="DeleteAdRequest" asp-route-id="@request.Id" class="btn btn-outline-primary btn-sm"> Cancelar </a>
+                    </p>
+                </div>
+            }
+        </div>
         break;
     case AdPeriodStatus.WaitingResults:
         <div class="alert alert-info" role="alert">

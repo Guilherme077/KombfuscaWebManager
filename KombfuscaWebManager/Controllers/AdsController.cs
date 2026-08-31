@@ -2,11 +2,13 @@
 using KombfuscaWebManager.Models;
 using KombfuscaWebManager.Models.AdModels;
 using KombfuscaWebManager.Models.AdModels.ViewModels;
+using KombfuscaWebManager.Models.CupModels;
 using KombfuscaWebManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace KombfuscaWebManager.Controllers
 {
@@ -138,7 +140,7 @@ namespace KombfuscaWebManager.Controllers
 
         private void CheckAdPeriodStatus(AdSubscriptionPeriod adPeriod, out AdPeriodStatus status)
         {
-            var now = DateTime.Now;
+            var now = DateTime.Now.Date;
             if (now < adPeriod.StartSubscription)
             {
                 status = AdPeriodStatus.WaitingSubscription;
@@ -368,6 +370,49 @@ namespace KombfuscaWebManager.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(EditAdPeriod), new { id = periodId });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAdRequest(AdRequest request)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null) return Unauthorized();
+
+            var cup = await _context.Cups.Where(c => c.StartDate >= DateTime.Now).OrderBy(c => c.StartDate).FirstOrDefaultAsync();
+
+            if(cup == null) return BadRequest("Houve um erro ao tentar registrar sua inscrição: Copa não encontrada.");
+
+            var adPeriod = await _context.AdSubscriptionPeriods
+                .Include(p => p.Cup)
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.CupId == cup.Id);
+
+            if (adPeriod == null) return BadRequest("Houve um erro ao tentar registrar sua inscrição: Nenhum período de anúncios encontrado.");
+
+            AdPeriodStatus status = AdPeriodStatus.NoCupOrPeriodFound;
+            CheckAdPeriodStatus(adPeriod, out status);
+
+            if (status != AdPeriodStatus.SubscriptionOpen) return BadRequest("Houve um erro ao tentar registrar sua inscrição: Período de inscrição não está aberto.");
+
+            var newRequest = new AdRequest
+            {
+                UserId = userId,
+                RequestedAt = DateTime.Now,
+                SubscriptionPeriod = adPeriod,
+                BrandName = request.BrandName,
+                OficialName = request.OficialName,
+                Slogan = request.Slogan,
+                Status = RequestStatus.Pending,
+                StatusMessage = String.Empty
+            };
+            _context.AdRequests.Add(newRequest);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("AdsCentral");
+
         }
 
     }
