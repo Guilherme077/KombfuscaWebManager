@@ -26,6 +26,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient<ScoreService>();
+builder.Services.AddScoped<AdsService>();
 
 var app = builder.Build();
 

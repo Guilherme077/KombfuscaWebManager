@@ -2,6 +2,7 @@
 using KombfuscaWebManager.Models;
 using KombfuscaWebManager.Models.AdModels;
 using KombfuscaWebManager.Models.AdModels.ViewModels;
+using KombfuscaWebManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,12 @@ namespace KombfuscaWebManager.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        public AdsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        private readonly AdsService _adsService;
+        public AdsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, AdsService adsService)
         {
             _context = context;
             _userManager = userManager;
+            _adsService = adsService;
         }
 
         public IActionResult Index()
@@ -34,9 +37,132 @@ namespace KombfuscaWebManager.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult AdsCentral()
+        public async Task<IActionResult> AdsCentral()
         {
-            return View();
+            AdPeriodStatus status = AdPeriodStatus.NoCupOrPeriodFound;
+            AdSubscriptionPeriod? adPeriod = null;
+            var cup = await _context.Cups.Where(c => c.StartDate >= DateTime.Now).OrderBy(c => c.StartDate).FirstOrDefaultAsync();
+
+            if(cup != null)
+            {
+                adPeriod = await _context.AdSubscriptionPeriods
+                .Include(p => p.Cup)
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.CupId == cup.Id);
+
+                if (adPeriod != null)
+                {
+                    CheckAdPeriodStatus(adPeriod, out status);
+                }
+            }
+
+            var viewModel = new AdCentralViewModel
+            {
+                AdPeriodStatus = status,
+                CurrentAdPeriod = adPeriod
+            };
+
+            if (adPeriod != null)
+            {
+                var userId = _userManager.GetUserId(User);
+                if(status == AdPeriodStatus.AuctionOpen || status == AdPeriodStatus.AuctionEnded)
+                {
+                    viewModel.UserAdRequest = await _context.AdRequests
+                        .Where(request => (request.UserId == userId && request.SubscriptionPeriod!.Id == adPeriod.Id) && request.Status == RequestStatus.Approved)
+                        .ToListAsync();
+                }
+                else
+                {
+                    viewModel.UserAdRequest = await _context.AdRequests
+                        .Where(request => request.UserId == userId && request.SubscriptionPeriod!.Id == adPeriod.Id)
+                        .ToListAsync();
+                }
+                
+
+                if (status == AdPeriodStatus.AuctionOpen)
+                {
+                    var validAuctionBids = await _context.AuctionBids
+                        .AsNoTracking()
+                        .Include(bid => bid.Request)
+                        .Where(bid => bid.Valid && bid.Request.SubscriptionPeriod!.Id == adPeriod.Id)
+                        .OrderByDescending(bid => bid.Value)
+                        .ThenBy(bid => bid.Id)
+                        .ToListAsync();
+
+                    foreach (var bid in validAuctionBids)
+                    {
+                        if(bid.Request.UserId != userId)
+                        {
+                            bid.Request.OficialName = "Anonimo";
+                            bid.Request.BrandName = "Anonimo";
+                            bid.Request.Slogan = "Anonimo";
+                            bid.Request.StatusMessage = "Anonimo";
+                            bid.Request.UserId = "";
+                            bid.Request.User = null;
+                        }
+                    }
+
+                    viewModel.AllValidAuctionBids = validAuctionBids;
+
+                    viewModel.UserValidAuctionBids = viewModel.AllValidAuctionBids
+                        .Where(bid => bid.Request.UserId == userId)
+                        .ToList();
+                    viewModel.BidCategories = _adsService.RankBidsByCategory(
+                        viewModel.AllValidAuctionBids,
+                        adPeriod.Categories);
+                }
+
+                if (status == AdPeriodStatus.AuctionEnded)
+                {
+                    var validAuctionBids = await _context.AuctionBids
+                        .AsNoTracking()
+                        .Include(bid => bid.Request)
+                        .Where(bid => bid.Valid && bid.Request.SubscriptionPeriod!.Id == adPeriod.Id)
+                        .OrderByDescending(bid => bid.Value)
+                        .ThenBy(bid => bid.Id)
+                        .ToListAsync();
+
+                    viewModel.AllValidAuctionBids = validAuctionBids;
+
+                    viewModel.UserValidAuctionBids = viewModel.AllValidAuctionBids
+                        .Where(bid => bid.Request.UserId == userId)
+                        .ToList();
+                    viewModel.BidCategories = _adsService.RankBidsByCategory(
+                        viewModel.AllValidAuctionBids,
+                        adPeriod.Categories);
+                }
+            }
+
+            return View(viewModel);
+        }
+
+        private void CheckAdPeriodStatus(AdSubscriptionPeriod adPeriod, out AdPeriodStatus status)
+        {
+            var now = DateTime.Now;
+            if (now < adPeriod.StartSubscription)
+            {
+                status = AdPeriodStatus.WaitingSubscription;
+            }
+            else if (now >= adPeriod.StartSubscription && now <= adPeriod.EndSubscription)
+            {
+                status = AdPeriodStatus.SubscriptionOpen;
+            }
+            else if (now > adPeriod.EndSubscription && now < adPeriod.SituationReviewDate)
+            {
+                status = AdPeriodStatus.WaitingResults;
+            }
+            else if (now >= adPeriod.SituationReviewDate && now < adPeriod.StartAuction)
+            {
+                status = AdPeriodStatus.ResultsAvailable;
+            }
+            else if (now >= adPeriod.StartAuction && now <= adPeriod.EndAuction)
+            {
+                status = AdPeriodStatus.AuctionOpen;
+            }
+            else
+            {
+                status = AdPeriodStatus.AuctionEnded;
+            }
         }
 
         [Authorize(Roles = Roles.Admin)]
@@ -243,5 +369,17 @@ namespace KombfuscaWebManager.Controllers
 
             return RedirectToAction(nameof(EditAdPeriod), new { id = periodId });
         }
+
+    }
+
+    public enum AdPeriodStatus
+    {
+        NoCupOrPeriodFound,
+        WaitingSubscription,
+        SubscriptionOpen,
+        WaitingResults,
+        ResultsAvailable,
+        AuctionOpen,
+        AuctionEnded
     }
 }

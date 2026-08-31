@@ -1,5 +1,223 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@using KombfuscaWebManager.Controllers
+@using KombfuscaWebManager.Models.AdModels
+@using KombfuscaWebManager.Models.AdModels.ViewModels
+@model AdCentralViewModel;
+
+@if (Model.AdPeriodStatus != AdPeriodStatus.NoCupOrPeriodFound && Model.AdPeriodStatus != AdPeriodStatus.AuctionEnded)
+{
+    <div class="alert alert-info" role="alert">
+        Cronograma atual:<br />
+        <br /> <strong> Inscrições: @Model.CurrentAdPeriod.StartSubscription.ToString("dd/MM/yyyy") - @Model.CurrentAdPeriod.EndSubscription.ToString("dd/MM/yyyy") </strong>
+        <br /> Resultado da Análise: @Model.CurrentAdPeriod.SituationReviewDate.ToString("dd/MM/yyyy")
+        <br /> Leilão: @Model.CurrentAdPeriod.StartAuction.ToString("dd/MM/yyyy") - @Model.CurrentAdPeriod.EndAuction.ToString("dd/MM/yyyy")
+        <br />
+    </div>
 }
+
+@switch (Model.AdPeriodStatus)
+{
+    case AdPeriodStatus.NoCupOrPeriodFound:
+        <div class="alert alert-warning" role="alert">
+            Não há nenhum período de inscrições de anúncios configurado no momento.
+        </div>
+        break;
+    case AdPeriodStatus.WaitingSubscription:
+        <div class="alert alert-info" role="alert">
+            As inscrições de anúncio vão começar em breve! <br /> 
+        </div>
+        break;
+    case AdPeriodStatus.SubscriptionOpen:
+        <div class="alert alert-warning" role="alert">
+            As inscrições para anunciar na copa estão abertas!
+            <br /> Você pode inscrever quantas instituições quiser. Esta etapa <strong>NÃO SIGNIFICA APROVAÇÃO IMEDIATA!</strong>. Sua solicitação estará sujeita a aprovação. 
+            <br /> Você pode cancelar uma inscrição, mesmo que seja aprovada, se for antes do primeiro lance no leilão.
+            <br /> O valor e a modalidade de anúncio será definida em leilão. Durante o leilão, as modalidades de anúncio serão definidas de acordo com os requisitos de categoria exibidos abaixo. <strong>Note que o lance precisará ser maior que o 'lance mínimo' da categoria com 'lance mínimo' mais baixo.</strong>
+        </div>
+        <div>
+            @foreach (var adCategory in Model.CurrentAdPeriod.Categories)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">
+                        @adCategory.Name
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@adCategory.Description</p>
+                        <p class="card-text"><strong>Lance mínimo:</strong> R$ @adCategory.MinValue.ToString("N2")</p>
+                        <p class="card-text"><strong>Máximo de Anúncios:</strong> @adCategory.MaxAds</p>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="alert alert-warning" role="alert">
+            ATENÇÃO: Um lance maior que lance mínimo de uma categoria não significará que o anúncio participará de tal categoria. Os maiores lances serão definidos até o limite máximo de anúncios para a categoria, desde que tenham o valor mínimo necessário.
+        </div>
+     
+        <form asp-action="CreateAdRequest" asp-controller="Ads" method="post">
+            <h4>Inscrição de Anúncio</h4>
+            <label class="form-label small text-muted"> Nome Oficial* </label>
+            <input type="text" name="OficialName" class="form-control" required />
+
+            <label class="form-label small text-muted"> Nome da Marca* </label>
+            <input type="text" name="BrandName" class="form-control" required />
+
+            <label class="form-label small text-muted"> Slogan </label>
+            <input type="text" name="Slogan" class="form-control" />
+
+            <button type="submit" class="btn btn-primary w-100">
+                Enviar inscrição de anúncio
+            </button>
+        </form>
+        break;
+    case AdPeriodStatus.WaitingResults:
+        <div class="alert alert-info" role="alert">
+            As inscrições de anúncio foram encerradas. <br />
+            O resultado da análise será divulgado em breve! Confira o cronograma acima. <br />
+        </div>
+        break;
+    case AdPeriodStatus.ResultsAvailable:
+        <div class="alert alert-success" role="alert">
+            O resultado da análise das suas inscrições de anúncio estão na lista abaixo! <br />
+            Confira o cronograma acima para saber quando o leilão vai começar. <br />
+        </div>
+        <table>
+            <tr>
+                <th>Nome da Marca</th>
+                <th>Situação</th>
+                <th>Motivo</th>
+            </tr>
+            @foreach (var adRequest in Model.UserAdRequest)
+            {
+                <tr>
+                    <td>@adRequest.BrandName</td>
+                    @if (adRequest.Status == RequestStatus.Approved)
+                    {
+                        <td style="color: green;">Aprovado</td>
+                    }
+                    else if (adRequest.Status == RequestStatus.Rejected)
+                    {
+                        <td style="color: red;">Rejeitado</td>
+                    }
+                    else
+                    {
+                        <td>Ainda em análise</td>
+                    }
+                    <td>@adRequest.StatusMessage</td>
+                </tr>
+                
+            }
+        </table>
+        <div class="alert alert-success" role="alert">
+            <strong>SE APROVADO:</strong>
+            <br /> O anúncio está válido e pode participar do leilão. <br />Entretanto, até que um lance seja feito, não há garantias de que o anúncio será veiculado.
+        </div>
+        <div class="alert alert-danger" role="alert">
+            <strong>SE REJEITADO:</strong>
+            <br /> Você ainda pode contestar a decisão pessoalmente com a CAK, mas deve fazer isso antes de 12 horas antes do início do leilão. <br /> Se o leilão iniciar, o anúncio rejeitado estará impedido de fazer lances.
+        </div>
+        break;
+    case AdPeriodStatus.AuctionOpen:
+        <div class="alert alert-info" role="alert">
+            O leilão de anúncios está aberto! <br />
+            Se atente as regras abaixo antes de fazer um lance. <br />
+            Você pode ver o valor e posição de todos os outros anúncios até o momento.
+        </div>
+        <div class="alert alert-info" role="alert">
+            REGRAS:
+            <ul>
+                <li>Um lance não pode ser retirado após ser feito.</li>
+                <li>O valor do lance deve ser maior que o lance anterior.</li>
+                <li>Você pode fazer vários lances durante o período do leilão.</li>
+                <li>Os seus lances vão aparecer anonimamente para os outros usuários durante o leilão, mas o valor é público.</li>
+                <li>Após o leilão, os nomes e valores dos lances no resultado final serão públicos</li>
+            </ul>
+        </div>
+        <div class="alert alert-warning" role="alert">
+            ATENÇÃO:
+            <br /> A categoria atual exibida de um anúncio <strong> não representa a categoria final e está sujeita a alterações,</strong> conforme outros lances acontecerem.
+        </div>
+        <h4>Lances do leilão até o momento</h4>
+        <p>NÃO é atualizado automaticamente. Você deve reiniciar a página para ver os lances mais recentes.</p>
+        <table>
+            <tr>
+                <th>Nome da Marca</th>
+                <th>Valor</th>
+                <th>Categoria Prevista</th>
+            </tr>
+            @foreach (var ad in Model.AllValidAuctionBids)
+            {
+                Model.BidCategories.TryGetValue(ad.Id, out var category);
+                <tr>
+                    <td>@ad.Request.BrandName</td>
+                    <td>@ad.Value.ToString("N2")</td>
+                    <td>@(category?.Name ?? "Sem categoria")</td>
+                </tr>
+            }
+        </table>
+        <form asp-action="NewAuctionBid" asp-controller="Ads" method="post">
+            <h4>Fazer um lance</h4>
+            <label class="form-label fw-semibold">Fazer um lance representando </label>
+
+            <select name="AdRequestId"
+                    class="form-select"
+                    required>
+
+                <option value="" selected disabled>
+                    Selecione a instituição
+                </option>
+
+                @foreach (var adRequest in Model.UserAdRequest)
+                {
+                    <option value="@adRequest.Id">
+                        @adRequest.BrandName
+                    </option>
+                }
+
+            </select>
+
+
+            <label class="form-label small text-muted"> no valor de </label>
+            <div class="input-group">
+                <span class="input-group-text">R$</span>
+
+                <input type="text"
+                       name="Value"
+                       class="form-control"
+                       placeholder="0,00"
+                       required />
+            </div>
+
+            <button type="text" class="btn btn-primary w-100">
+                Fazer lance (irreversível)
+            </button>
+        </form>
+        break;
+    case AdPeriodStatus.AuctionEnded:
+        <div class="alert alert-info" role="alert">
+            O leilão de anúncios está encerrado! <br />
+            Abaixo está a tabela final de lances, com suas categorias. <br />
+        </div>
+        <table>
+            <tr>
+                <th>Nome da Marca</th>
+                <th>Valor</th>
+                <th>Categoria Prevista</th>
+            </tr>
+            @foreach (var ad in Model.AllValidAuctionBids)
+            {
+                Model.BidCategories.TryGetValue(ad.Id, out var category);
+                <tr>
+                    <td>@ad.Request.BrandName</td>
+                    <td>@ad.Value.ToString("N2")</td>
+                    <td>@(category?.Name ?? "Sem categoria")</td>
+                </tr>
+            }
+        </table>
+        break;
+
+    default:
+        <div class="alert alert-warning" role="alert">
+            Não há nenhum período de inscrições de anúncios configurado no momento.
+        </div>
+        break;
+}
+
