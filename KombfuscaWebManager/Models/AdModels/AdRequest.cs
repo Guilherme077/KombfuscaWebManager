@@ -8,7 +8,7 @@
         public AdSubscriptionPeriod? SubscriptionPeriod { get; set; }
         public string OficialName { get; set; } = string.Empty;
         public string BrandName { get; set; } = string.Empty;
-        public string Slogan { get; set; } = string.Empty;
+        public string Slogan { get; set; } = "Sem Slogan";
         public DateTime RequestedAt { get; set; } = DateTime.Now;
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
         public string StatusMessage { get; set; } = string.Empty;

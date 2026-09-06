@@ -397,6 +397,8 @@ namespace KombfuscaWebManager.Controllers
 
             if (status != AdPeriodStatus.SubscriptionOpen) return BadRequest("Houve um erro ao tentar registrar sua inscrição: Período de inscrição não está aberto.");
 
+            if (request.Slogan == null) request.Slogan = "Sem slogan";
+
             var newRequest = new AdRequest
             {
                 UserId = userId,
@@ -413,6 +415,109 @@ namespace KombfuscaWebManager.Controllers
 
             return RedirectToAction("AdsCentral");
 
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> DeleteAdRequest(int id)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var adRequest = await _context.AdRequests.FindAsync(id);
+            if (adRequest != null)
+            {
+                if (adRequest.UserId != userId) return Unauthorized();
+                _context.AdRequests.Remove(adRequest);
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("AdsCentral");
+        }
+
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NewAuctionBid(AuctionBid newBid)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null) return Unauthorized();
+
+
+
+
+            var adRequest = await _context.AdRequests.Where(a => a.Id == newBid.RequestId).Include(a=> a.SubscriptionPeriod).ThenInclude(p => p.Categories).FirstAsync();
+
+            if (adRequest == null) return BadRequest("Houve um erro ao fazer um lance: Instituição não encontrada.");
+
+            if (adRequest.UserId != userId) return Unauthorized();
+
+
+
+
+            var oldBid = await _context.AuctionBids.Where(a => a.RequestId == newBid.RequestId && a.Valid == true).FirstOrDefaultAsync();
+
+            double min = _adsService.getMinValuePeriod(adRequest.SubscriptionPeriod);
+
+            if (newBid.Value < min)
+            {
+                return BadRequest("Houve um erro ao fazer um lance: O valor do lance deve ser maior que o valor mínimo do período (o valor do lance não se enquadra em nenhuma categoria).");
+            }
+
+            if (oldBid == null)
+            {
+                _context.AuctionBids.Add(newBid);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                if (newBid.Value <= oldBid.Value)
+                {
+                    return BadRequest("Houve um erro ao fazer um lance: O valor do novo lance deve ser maior que o lance anterior.");
+                }
+                oldBid.Valid = false;
+                _context.AuctionBids.Update(oldBid);
+                _context.AuctionBids.Add(newBid);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("AdsCentral");
+
+        }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet]
+        public async Task<IActionResult> SeeRequestsAdPeriod(int id)
+        {
+            var viewModel = await _context.AdRequests.Where(a => a.SubscriptionPeriod!.Id == id).Include(a => a.User).ToListAsync();
+            return View(viewModel);
+        }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetRequest(int id, int action, string statusMessage)
+        {
+            var adRequest = await _context.AdRequests.Where(a => a.Id == id).Include(a => a.SubscriptionPeriod).FirstAsync();
+            if (adRequest == null) return NotFound();
+            if(action == 0)
+            {
+                adRequest.Status = RequestStatus.Rejected;
+            }
+            else
+            {
+                adRequest.Status = RequestStatus.Approved;
+            }
+            adRequest.StatusMessage = statusMessage;
+            _context.AdRequests.Update(adRequest);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("SeeRequestsAdPeriod", new { id = adRequest.SubscriptionPeriod.Id });
         }
 
     }

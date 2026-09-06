@@ -1,0 +1,34 @@
+﻿@using KombfuscaWebManager.Models.AdModels
+@model IEnumerable<AdRequest>
+
+
+
+<h1>Análise de Inscrições</h1>
+
+@foreach (var request in Model)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Inscrição de Anúncio</h5>
+            <p class="card-text"><strong>Usuário:</strong> @request.User?.FullName</p>
+            <p class="card-text"><strong>Instituição:</strong> @request.OficialName</p>
+            <p class="card-text"><strong>Marca:</strong> @request.BrandName</p>
+            <p class="card-text"><strong>Slogan:</strong> @request.Slogan</p>
+            <p class="card-text"><strong>Data da Inscrição:</strong> @request.RequestedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            <p class="card-text"><strong>Status atual:</strong> @request.Status</p>
+            <form asp-action="SetRequest" asp-route-id="@request.Id" method="post" class="d-inline">
+                <input type="hidden" name="action" value="1" />
+                <label for="statusMessage">Mensagem:</label>
+                <input type="text" id="statusMessage" name="statusMessage" />
+                <button type="submit" class="btn btn-success">Aprovar</button>
+            </form>
+            <form asp-action="SetRequest" asp-route-id="@request.Id" method="post" class="d-inline">
+                <input type="hidden" name="action" value="0" />
+                <label for="statusMessage">Motivo da Rejeição:</label>
+                <input type="text" id="statusMessage" name="statusMessage" />
+                <button type="submit" class="btn btn-danger">Rejeitar</button>
+            </form>
+        </div>
+    </div>
+}
+)

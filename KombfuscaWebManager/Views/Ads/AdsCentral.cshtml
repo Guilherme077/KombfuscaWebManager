@@ -134,6 +134,19 @@
             Se atente as regras abaixo antes de fazer um lance. <br />
             Você pode ver o valor e posição de todos os outros anúncios até o momento.
         </div>
+        @foreach (var adCategory in Model.CurrentAdPeriod.Categories)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    @adCategory.Name
+                </div>
+                <div class="card-body">
+                    <p class="card-text">@adCategory.Description</p>
+                    <p class="card-text"><strong>Lance mínimo:</strong> R$ @adCategory.MinValue.ToString("N2")</p>
+                    <p class="card-text"><strong>Máximo de Anúncios:</strong> @adCategory.MaxAds</p>
+                </div>
+            </div>
+        }
         <div class="alert alert-info" role="alert">
             REGRAS:
             <ul>
@@ -150,6 +163,7 @@
         </div>
         <h4>Lances do leilão até o momento</h4>
         <p>NÃO é atualizado automaticamente. Você deve reiniciar a página para ver os lances mais recentes.</p>
+        <p>Última atualização: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</p>
         <table>
             <tr>
                 <th>Nome da Marca</th>
@@ -170,7 +184,7 @@
             <h4>Fazer um lance</h4>
             <label class="form-label fw-semibold">Fazer um lance representando </label>
 
-            <select name="AdRequestId"
+            <select name="RequestId"
                     class="form-select"
                     required>
 
@@ -209,6 +223,19 @@
             O leilão de anúncios está encerrado! <br />
             Abaixo está a tabela final de lances, com suas categorias. <br />
         </div>
+        @foreach (var adCategory in Model.CurrentAdPeriod.Categories)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    @adCategory.Name
+                </div>
+                <div class="card-body">
+                    <p class="card-text">@adCategory.Description</p>
+                    <p class="card-text"><strong>Lance mínimo:</strong> R$ @adCategory.MinValue.ToString("N2")</p>
+                    <p class="card-text"><strong>Máximo de Anúncios:</strong> @adCategory.MaxAds</p>
+                </div>
+            </div>
+        }
         <table>
             <tr>
                 <th>Nome da Marca</th>

@@ -35,5 +35,11 @@ namespace KombfuscaWebManager.Services
 
             return bidCategories;
         }
+
+        public double getMinValuePeriod(AdSubscriptionPeriod period)
+        {
+            double minValue = period.Categories.Select(category => category.MinValue).DefaultIfEmpty(0).Min();
+            return minValue;
+        }
     }
 }
