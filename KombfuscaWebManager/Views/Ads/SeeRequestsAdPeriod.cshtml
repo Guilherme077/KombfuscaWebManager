@@ -1,34 +1,45 @@
-﻿@using KombfuscaWebManager.Models.AdModels
+@using KombfuscaWebManager.Models.AdModels
 @model IEnumerable<AdRequest>
 
+@{ ViewData["Title"] = "Análise de inscrições"; }
+<link rel="stylesheet" href="~/css/ads.css" asp-append-version="true" />
 
+<div class="ads-shell">
+    <header class="ads-page-header">
+        <span class="ads-eyebrow">Painel Administrativo</span>
+        <h1 class="ads-title">Análise de inscrições</h1>
+        <p class="ads-lead mb-0">Revise os dados de cada marca.</p>
+    </header>
 
-<h1>Análise de Inscrições</h1>
+    <div class="ads-section-heading"><div><h2>Solicitações recebidas</h2></div><span class="ads-count">@Model.Count()</span></div>
 
-@foreach (var request in Model)
-{
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">Inscrição de Anúncio</h5>
-            <p class="card-text"><strong>Usuário:</strong> @request.User?.FullName</p>
-            <p class="card-text"><strong>Instituição:</strong> @request.OficialName</p>
-            <p class="card-text"><strong>Marca:</strong> @request.BrandName</p>
-            <p class="card-text"><strong>Slogan:</strong> @request.Slogan</p>
-            <p class="card-text"><strong>Data da Inscrição:</strong> @request.RequestedAt.ToString("dd/MM/yyyy HH:mm")</p>
-            <p class="card-text"><strong>Status atual:</strong> @request.Status</p>
-            <form asp-action="SetRequest" asp-route-id="@request.Id" method="post" class="d-inline">
-                <input type="hidden" name="action" value="1" />
-                <label for="statusMessage">Mensagem:</label>
-                <input type="text" id="statusMessage" name="statusMessage" />
-                <button type="submit" class="btn btn-success">Aprovar</button>
-            </form>
-            <form asp-action="SetRequest" asp-route-id="@request.Id" method="post" class="d-inline">
-                <input type="hidden" name="action" value="0" />
-                <label for="statusMessage">Motivo da Rejeição:</label>
-                <input type="text" id="statusMessage" name="statusMessage" />
-                <button type="submit" class="btn btn-danger">Rejeitar</button>
-            </form>
+    @if (!Model.Any())
+    {
+        <div class="ads-surface ads-empty"><i class="bi bi-inbox"></i>Nenhuma inscrição para analisar neste período.</div>
+    }
+    else
+    {
+        <div class="ads-surface overflow-hidden">
+        @foreach (var request in Model)
+        {
+            <article class="ads-period">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div><span class="ads-eyebrow">@request.OficialName</span><h2 class="h4 fw-bold mt-1 mb-1">@request.BrandName</h2><p class="text-muted mb-0">@(String.IsNullOrWhiteSpace(request.Slogan) ? "Sem slogan informado" : request.Slogan)</p></div>
+                    @if (request.Status == RequestStatus.Approved) { <span class="ads-status ads-status--success">Aprovado</span> }
+                    else if (request.Status == RequestStatus.Rejected) { <span class="ads-status ads-status--danger">Rejeitado</span> }
+                    else { <span class="ads-status ads-status--pending">Pendente</span> }
+                </div>
+                <div class="row g-3 mb-4 small">
+                    <div class="col-md-4"><span class="text-muted d-block">Responsável</span><strong>@request.User?.FullName</strong></div>
+                    <div class="col-md-4"><span class="text-muted d-block">Inscrição enviada</span><strong>@request.RequestedAt.ToString("dd/MM/yyyy 'às' HH:mm")</strong></div>
+                    <div class="col-md-4"><span class="text-muted d-block">Observação atual</span><strong>@(String.IsNullOrWhiteSpace(request.StatusMessage) ? "Nenhuma" : request.StatusMessage)</strong></div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-lg-6"><form asp-action="SetRequest" asp-route-id="@request.Id" method="post" class="d-flex gap-2"><input type="hidden" name="action" value="1" /><input type="text" name="statusMessage" class="form-control" aria-label="Mensagem de aprovação" placeholder="Mensagem de aprovação (opcional)" /><button type="submit" class="btn btn-success px-3">Aprovar</button></form></div>
+                    <div class="col-lg-6"><form asp-action="SetRequest" asp-route-id="@request.Id" method="post" class="d-flex gap-2"><input type="hidden" name="action" value="0" /><input type="text" name="statusMessage" class="form-control" aria-label="Motivo da rejeição" placeholder="Informe o motivo da rejeição" required /><button type="submit" class="btn btn-outline-danger px-3">Rejeitar</button></form></div>
+                </div>
+            </article>
+        }
         </div>
-    </div>
-}
-)
+    }
+</div>

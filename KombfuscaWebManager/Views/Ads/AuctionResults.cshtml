@@ -1,0 +1,83 @@
+@using KombfuscaWebManager.Controllers
+@using KombfuscaWebManager.Models.AdModels.ViewModels
+@model AdCentralViewModel
+
+@{
+    ViewData["Title"] = "Resultado do leilão";
+    var auctionAvailable = Model.AdPeriodStatus == AdPeriodStatus.AuctionOpen || Model.AdPeriodStatus == AdPeriodStatus.AuctionEnded;
+    var isLive = Model.AdPeriodStatus == AdPeriodStatus.AuctionOpen;
+}
+
+<link rel="stylesheet" href="~/css/ads.css" asp-append-version="true" />
+
+<div class="ads-shell">
+    <header class="ads-page-header d-flex flex-wrap justify-content-between align-items-end gap-3">
+        <div>
+            <span class="ads-eyebrow">Painel administrativo</span>
+            <h1 class="ads-title">Resultado do leilão</h1>
+            <p class="ads-lead mb-0">@Model.CurrentAdPeriod?.Cup.Name · acompanhamento completo das marcas participantes.</p>
+        </div>
+        <a asp-action="ManageAds" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Voltar à administração</a>
+    </header>
+
+    @if (!auctionAvailable)
+    {
+        <div class="ads-notice ads-notice--warning">
+            <i class="bi bi-clock-history"></i>
+            <div><strong>O leilão ainda não começou</strong><p>O placar administrativo ficará disponível a partir de @Model.CurrentAdPeriod?.StartAuction.ToString("dd/MM/yyyy").</p></div>
+        </div>
+    }
+    else
+    {
+        <section class="ads-auction-hero mb-4">
+            @if (isLive) { <span class="ads-live">Leilão em andamento</span> } else { <span class="ads-eyebrow text-white">Leilão encerrado</span> }
+            <h1>@(isLive ? "Placar administrativo ao vivo" : "Classificação final")</h1>
+            <p>@(isLive ? "A classificação abaixo é provisória e muda conforme novos lances são registrados." : "Valores, participantes e categorias consolidados ao fim da disputa.")</p>
+        </section>
+
+        <section class="ads-section">
+            <div class="ads-section-heading">
+                <div><h2>Categorias e faixas</h2><p>Distribuição de vagas configurada para este período.</p></div>
+            </div>
+            @await Html.PartialAsync("_AdCategories", Model.CurrentAdPeriod!.Categories)
+        </section>
+
+        <section class="ads-section">
+            <div class="ads-section-heading">
+                <div>
+                    <h2>@(isLive ? "Classificação atual" : "Resultado definitivo")</h2>
+                    <p>@if (isLive) { <text>Consulta realizada em @DateTime.Now.ToString("dd/MM/yyyy 'às' HH:mm:ss"). Recarregue a página para atualizar.</text> } else { <text>@Model.AllValidAuctionBids.Count lance(s) válido(s) no encerramento.</text> }</p>
+                </div>
+                <span class="ads-count">@Model.AllValidAuctionBids.Count participante(s)</span>
+            </div>
+            <div class="ads-table-wrap">
+                <table class="table ads-table">
+                    <thead><tr><th>#</th><th>Marca</th><th>Responsável</th><th class="text-end">Lance</th><th>Categoria</th></tr></thead>
+                    <tbody>
+                    @{ var rank = 0; }
+                    @foreach (var bid in Model.AllValidAuctionBids)
+                    {
+                        rank++;
+                        Model.BidCategories.TryGetValue(bid.Id, out var category);
+                        <tr>
+                            <td class="ads-rank">@rank.ToString("00")</td>
+                            <td><strong class="d-block">@bid.Request.BrandName</strong><small class="text-muted">@bid.Request.OficialName</small></td>
+                            <td>@(bid.Request.User?.FullName ?? "—")</td>
+                            <td class="text-end fw-bold">R$ @bid.Value.ToString("N2")</td>
+                            <td><span class="ads-status @(category == null ? "ads-status--pending" : "ads-status--success")">@(category?.Name ?? "Não classificado")</span></td>
+                        </tr>
+                    }
+                    @if (!Model.AllValidAuctionBids.Any())
+                    {
+                        <tr><td colspan="5" class="ads-empty"><i class="bi bi-hammer"></i>Nenhum lance válido registrado.</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            @if (isLive)
+            {
+                <div class="ads-notice ads-notice--warning mt-3 mb-0"><i class="bi bi-arrow-repeat"></i><div><strong>Resultado provisório</strong><p>As categorias projetadas podem mudar até o encerramento do leilão.</p></div></div>
+            }
+        </section>
+    }
+</div>

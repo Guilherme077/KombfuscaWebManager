@@ -6,28 +6,30 @@
     ViewData["Title"] = "Administrar anúncios";
 }
 
-<div class="container py-4">
+<link rel="stylesheet" href="~/css/ads.css" asp-append-version="true" />
+<div class="ads-shell">
 
-    <div class="mb-4">
-        <h2 class="fw-bold text-primary mb-1">Administrar anúncios das copas</h2>
-        <p class="text-muted mb-0">
-            Configure períodos de inscrição, leilões e categorias de anúncios.
+    <header class="ads-page-header">
+        <span class="ads-eyebrow">Painel administrativo</span>
+        <h1 class="ads-title">Administrar anúncios</h1>
+        <p class="ads-lead mb-0">
+            Configuração de Inscrições, Leilão e Categorias.
         </p>
-    </div>
+    </header>
 
     <div class="row g-4 mb-5">
 
         <div class="col-lg-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-primary text-white py-3">
+            <div class="ads-surface h-100">
+                <div class="ads-bid-panel__header">
                     
                     <h5 class="mb-0">
-                        <i class="bi bi-calendar-week fs-5 text-light mb-2"></i>
+                        <i class="bi bi-calendar-week fs-5 text-primary mb-2"></i>
                         Novo período de anúncios
                     </h5>
                 </div>
 
-                <div class="card-body p-4">
+                <div class="ads-form">
                     <form asp-action="CreateAdPeriod"
                           asp-controller="Ads"
                           method="post">
@@ -106,7 +108,7 @@
                             </div>
                         </div>
 
-                        <div class="alert alert-primary small mb-4">
+                        <div class="ads-notice small mb-4">
                             <div>
                                 O período de anúncios será vinculado automaticamente
                                 à copa mais recente.
@@ -119,7 +121,7 @@
                         </div>
 
                         <button type="submit"
-                                class="btn btn-primary w-100">
+                                class="btn ads-btn-primary w-100">
                             Criar novo período
                         </button>
 
@@ -130,15 +132,15 @@
 
 
         <div class="col-lg-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-primary text-white py-3">
+            <div class="ads-surface h-100">
+                <div class="ads-bid-panel__header">
                     <h5 class="mb-0">
-                        <i class="bi bi-bookmark-plus fs-5 text-light mb-2"></i>
+                        <i class="bi bi-bookmark-plus fs-5 text-primary mb-2"></i>
                         Nova categoria de anúncio
                     </h5>
                 </div>
 
-                <div class="card-body p-4">
+                <div class="ads-form">
                     <form asp-action="CreatePeriodCategory"
                           asp-controller="Ads"
                           method="post">
@@ -225,7 +227,7 @@
                         </div>
 
                         <button type="submit"
-                                class="btn btn-primary w-100">
+                                class="btn ads-btn-primary w-100">
                             Criar categoria
                         </button>
 
@@ -245,7 +247,7 @@
             </p>
         </div>
 
-        <span class="badge bg-primary rounded-pill fs-6">
+        <span class="ads-count">
             @Model.Count()
         </span>
     </div>
@@ -253,7 +255,7 @@
 
     @if (!Model.Any())
     {
-        <div class="alert alert-light border text-center py-4">
+        <div class="ads-surface ads-empty">
             <h5 class="mb-1">Nenhum período cadastrado</h5>
             <p class="text-muted mb-0">
                 Crie o primeiro período usando o formulário acima.
@@ -268,7 +270,7 @@
             {
                 <div class="col-12">
 
-                    <div class="card shadow-sm border-0">
+                    <div class="ads-surface">
 
                         <div class="card-header bg-light border-0 py-3">
                             <div class="d-flex flex-wrap
@@ -290,6 +292,12 @@
                                    asp-route-id="@adPeriod.Id"
                                    class="btn btn-outline-primary btn-sm">
                                     Análise de Inscrições
+                                </a>
+
+                                <a asp-action="AuctionResults"
+                                   asp-route-id="@adPeriod.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Resultado do leilão
                                 </a>
 
                                 <a asp-action="EditAdPeriod"
@@ -361,9 +369,9 @@
                             }
                             else
                             {
-                                <div class="table-responsive">
+                                <div class="table-responsive ads-table-wrap">
 
-                                    <table class="table table-hover align-middle mb-0">
+                                    <table class="table ads-table align-middle mb-0">
 
                                         <thead class="table-light">
                                             <tr>

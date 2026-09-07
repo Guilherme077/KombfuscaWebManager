@@ -5,16 +5,13 @@
     ViewData["Title"] = "Editar período de anúncios";
 }
 
-<div class="container py-4">
-    <div class="mb-4">
-        <h2 class="fw-bold text-primary mb-1">Editar período de anúncios</h2>
-        <p class="text-muted mb-0">Copa vinculada: @Model.Cup.Name</p>
-    </div>
+<link rel="stylesheet" href="~/css/ads.css" asp-append-version="true" />
+<div class="ads-shell">
+    <header class="ads-page-header"><span class="ads-eyebrow">Painel administrativo</span><h1 class="ads-title">Editar período de anúncios</h1><p class="ads-lead mb-0">Copa vinculada: @Model.Cup.Name</p></header>
 
     <div class="row">
         <div class="col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
+            <div class="ads-surface ads-form">
                     <form asp-action="EditAdPeriod" asp-route-id="@Model.Id" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -53,7 +50,7 @@
 
                         <div class="d-flex gap-2">
                             <a asp-action="ManageAds" class="btn btn-outline-secondary flex-fill">Cancelar</a>
-                            <button type="submit" class="btn btn-primary flex-fill">Salvar alterações</button>
+                            <button type="submit" class="btn ads-btn-primary flex-fill">Salvar alterações</button>
                         </div>
                     </form>
                 </div>
@@ -61,11 +58,11 @@
         </div>
 
         <div class="col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white py-3">
+            <div class="ads-surface">
+                <div class="ads-bid-panel__header">
                     <h5 class="mb-0">Categorias de anúncio</h5>
                 </div>
-                <div class="card-body p-4">
+                <div class="ads-form">
                     @if (!Model.Categories.Any())
                     {
                         <p class="text-muted mb-0">Nenhuma categoria cadastrada para este período.</p>
@@ -78,7 +75,7 @@
                                   asp-route-periodId="@Model.Id"
                                   asp-route-categoryId="@category.Id"
                                   method="post"
-                                  class="border rounded p-3 mb-3">
+                                  class="border-bottom pb-4 mb-4">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Nome da categoria</label>
                                     <input type="text" name="name" value="@category.Name" class="form-control" required />

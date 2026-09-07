@@ -1,0 +1,18 @@
+@using KombfuscaWebManager.Models.AdModels
+@model IEnumerable<AdCategory>
+
+<div class="ads-category-list">
+    @foreach (var category in Model.OrderByDescending(c => c.MinValue))
+    {
+        <article class="ads-category">
+            <div class="ads-category__name"><span class="ads-category__marker"></span>@category.Name</div>
+            <div class="ads-category__description">@category.Description</div>
+            <div class="ads-category__metric"><span>Vagas</span><strong>@category.MaxAds anúncio(s)</strong></div>
+            <div class="ads-category__metric"><span>Lance mínimo</span><strong>R$ @category.MinValue.ToString("N2")</strong></div>
+        </article>
+    }
+    @if (!Model.Any())
+    {
+        <div class="ads-empty"><i class="bi bi-tags"></i>Nenhuma categoria configurada.</div>
+    }
+</div>

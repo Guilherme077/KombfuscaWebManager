@@ -1,0 +1,22 @@
+@model string
+
+@{
+    ViewData["Title"] = "Não foi possível registrar o lance";
+    var errorTitle = ViewData["AuctionErrorTitle"]?.ToString() ?? "Lance não registrado";
+}
+
+<link rel="stylesheet" href="~/css/ads.css" asp-append-version="true" />
+
+<div class="ads-shell">
+    <div class="ads-error-page">
+        <div class="ads-error-page__icon" aria-hidden="true"><i class="bi bi-exclamation-lg"></i></div>
+        <span class="ads-eyebrow">Lance interrompido</span>
+        <h1 class="ads-title">@errorTitle</h1>
+        <p>@Model</p>
+        <div class="ads-notice ads-notice--warning text-start mt-4">
+            <i class="bi bi-shield-check"></i>
+            <div><strong>Seu lance não foi processado</strong><p>A operação foi encerrada antes de qualquer alteração no placar.</p></div>
+        </div>
+        <a asp-action="AdsCentral" class="btn ads-btn-primary px-4"><i class="bi bi-arrow-left me-2"></i>Voltar ao leilão</a>
+    </div>
+</div>

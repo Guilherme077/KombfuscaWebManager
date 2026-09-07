@@ -169,6 +169,45 @@ namespace KombfuscaWebManager.Controllers
 
         [Authorize(Roles = Roles.Admin)]
         [HttpGet]
+        public async Task<IActionResult> AuctionResults(int id)
+        {
+            var adPeriod = await _context.AdSubscriptionPeriods
+                .AsNoTracking()
+                .Include(period => period.Cup)
+                .Include(period => period.Categories)
+                .FirstOrDefaultAsync(period => period.Id == id);
+
+            if (adPeriod == null) return NotFound();
+
+            CheckAdPeriodStatus(adPeriod, out var status);
+
+            var viewModel = new AdCentralViewModel
+            {
+                AdPeriodStatus = status,
+                CurrentAdPeriod = adPeriod
+            };
+
+            if (status == AdPeriodStatus.AuctionOpen || status == AdPeriodStatus.AuctionEnded)
+            {
+                viewModel.AllValidAuctionBids = await _context.AuctionBids
+                    .AsNoTracking()
+                    .Include(bid => bid.Request)
+                    .ThenInclude(request => request.User)
+                    .Where(bid => bid.Valid && bid.Request.SubscriptionPeriod!.Id == adPeriod.Id)
+                    .OrderByDescending(bid => bid.Value)
+                    .ThenBy(bid => bid.Id)
+                    .ToListAsync();
+
+                viewModel.BidCategories = _adsService.RankBidsByCategory(
+                    viewModel.AllValidAuctionBids,
+                    adPeriod.Categories);
+            }
+
+            return View(viewModel);
+        }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet]
         public async Task<IActionResult> ManageAds()
         {
             var adPeriods = await _context.AdSubscriptionPeriods.Include(p => p.Cup).Include(p => p.Categories).ToListAsync();
@@ -452,14 +491,35 @@ namespace KombfuscaWebManager.Controllers
 
 
 
-            var adRequest = await _context.AdRequests.Where(a => a.Id == newBid.RequestId).Include(a=> a.SubscriptionPeriod).ThenInclude(p => p.Categories).FirstAsync();
+            var adRequest = await _context.AdRequests
+                .Where(a => a.Id == newBid.RequestId)
+                .Include(a => a.SubscriptionPeriod)
+                .ThenInclude(p => p.Categories)
+                .FirstOrDefaultAsync();
 
-            if (adRequest == null) return BadRequest("Houve um erro ao fazer um lance: Instituição não encontrada.");
+            if (adRequest == null)
+            {
+                return AuctionBadRequest("Marca não encontrada",
+                    "Não encontramos a instituição selecionada. Volte ao leilão, atualize a página e tente novamente.");
+            }
 
             if (adRequest.UserId != userId) return Unauthorized();
 
 
 
+
+            if (adRequest.SubscriptionPeriod == null)
+            {
+                return AuctionBadRequest("Período indisponível",
+                    "Esta inscrição não está vinculada a um período de leilão válido.");
+            }
+
+            CheckAdPeriodStatus(adRequest.SubscriptionPeriod, out var auctionStatus);
+            if (auctionStatus != AdPeriodStatus.AuctionOpen)
+            {
+                return AuctionBadRequest("Leilão fechado",
+                    "O período para novos lances não está aberto. Nenhum valor foi registrado.");
+            }
 
             var oldBid = await _context.AuctionBids.Where(a => a.RequestId == newBid.RequestId && a.Valid == true).FirstOrDefaultAsync();
 
@@ -467,7 +527,20 @@ namespace KombfuscaWebManager.Controllers
 
             if (newBid.Value < min)
             {
-                return BadRequest("Houve um erro ao fazer um lance: O valor do lance deve ser maior que o valor mínimo do período (o valor do lance não se enquadra em nenhuma categoria).");
+                return AuctionBadRequest("Lance abaixo do mínimo",
+                    $"O menor lance aceito neste leilão é R$ {min:N2}. Informe um valor que se enquadre em pelo menos uma categoria.");
+            }
+
+            var duplicatedValue = await _context.AuctionBids
+                .AsNoTracking()
+                .AnyAsync(bid => bid.Valid
+                    && bid.Value == newBid.Value
+                    && bid.Request.SubscriptionPeriod!.Id == adRequest.SubscriptionPeriod.Id);
+
+            if (duplicatedValue)
+            {
+                return AuctionBadRequest("Valor de lance já utilizado",
+                    $"Já existe um lance de R$ {newBid.Value:N2} neste período. Escolha um valor diferente para evitar empate no placar.");
             }
 
             if (oldBid == null)
@@ -479,7 +552,8 @@ namespace KombfuscaWebManager.Controllers
             {
                 if (newBid.Value <= oldBid.Value)
                 {
-                    return BadRequest("Houve um erro ao fazer um lance: O valor do novo lance deve ser maior que o lance anterior.");
+                    return AuctionBadRequest("O lance precisa ser maior",
+                        $"O novo valor deve superar o lance atual da marca, de R$ {oldBid.Value:N2}. Nenhuma alteração foi realizada.");
                 }
                 oldBid.Valid = false;
                 _context.AuctionBids.Update(oldBid);
@@ -489,6 +563,13 @@ namespace KombfuscaWebManager.Controllers
 
             return RedirectToAction("AdsCentral");
 
+        }
+
+        private IActionResult AuctionBadRequest(string title, string message)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            ViewData["AuctionErrorTitle"] = title;
+            return View("AuctionError", model: message);
         }
 
         [Authorize(Roles = Roles.Admin)]
