@@ -110,9 +110,18 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <a asp-action="GenerateCupCertificates" asp-controller="Docs" asp-route-cupId="@cupResult.CupId" target="_blank" class="btn btn-primary" style="background-color: #3b82f6; border-color: #3b82f6;">
-                                <i class="fas fa-certificate me-2"></i>Baixar Certificado
-                            </a>
+                            @if (cupResult.CertificateId.HasValue && cupResult.CertificateStatus == KombfuscaWebManager.Models.CertificateModels.CertificateStatus.Active)
+                            {
+                                <a asp-action="Download" asp-controller="Certificates" asp-route-id="@cupResult.CertificateId" class="btn btn-primary" style="background-color: #3b82f6; border-color: #3b82f6;">
+                                    <i class="fas fa-certificate me-2"></i>Baixar Certificado
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-secondary" disabled>
+                                    <i class="fas fa-certificate me-2"></i>Certificado ainda não emitido
+                                </button>
+                            }
                             <a asp-action="CupScores" asp-controller="Score" asp-route-cupId="@cupResult.CupId" class="btn btn-outline-primary" style="color: #3b82f6; border-color: #3b82f6;">
                                 <i class="fas fa-chart-bar me-2"></i>Ver Detalhes da Copa
                             </a>

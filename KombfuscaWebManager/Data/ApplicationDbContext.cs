@@ -1,6 +1,7 @@
 ﻿using Azure;
 using KombfuscaWebManager.Models;
 using KombfuscaWebManager.Models.AdModels;
+using KombfuscaWebManager.Models.CertificateModels;
 using KombfuscaWebManager.Models.CupModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -36,9 +37,23 @@ namespace KombfuscaWebManager.Data
 
         public DbSet<AuctionBid> AuctionBids { get; set; }
 
+        public DbSet<Certificate> Certificates { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Preserve the key sizes used by the existing Identity schema.
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserLogin<string>>(entity =>
+            {
+                entity.Property(e => e.LoginProvider).HasMaxLength(128);
+                entity.Property(e => e.ProviderKey).HasMaxLength(128);
+            });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserToken<string>>(entity =>
+            {
+                entity.Property(e => e.LoginProvider).HasMaxLength(128);
+                entity.Property(e => e.Name).HasMaxLength(128);
+            });
 
             builder.Entity<ScoreSheet>()
                 .HasOne(p => p.User)
@@ -62,6 +77,26 @@ namespace KombfuscaWebManager.Data
                 .HasOne(ca => ca.User)
                 .WithMany(u => u.CupAssignments)
                 .HasForeignKey(ca => ca.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Certificate>()
+                .HasIndex(c => c.ValidationCode)
+                .IsUnique();
+
+            builder.Entity<Certificate>()
+                .HasIndex(c => new { c.CupId, c.UserId })
+                .IsUnique();
+
+            builder.Entity<Certificate>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Certificate>()
+                .HasOne(c => c.Cup)
+                .WithMany()
+                .HasForeignKey(c => c.CupId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KombfuscaWebManager.Controllers
 {
+    [Authorize(Roles = Roles.Admin)]
     public class CupResultsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -186,9 +188,15 @@ namespace KombfuscaWebManager.Controllers
 
             _context.CupResults.AddRange(results);
 
+            var cup = await _context.Cups.FindAsync(model.CupId);
+            if (cup != null)
+            {
+                cup.cupStatus = CupStatus.finishedResultsAvailable;
+            }
+
             await _context.SaveChangesAsync();
 
-            return View("Index");
+            return RedirectToAction("CupScores", "Score", new { cupId = model.CupId });
         }
     }
 }

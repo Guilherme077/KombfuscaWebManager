@@ -1,0 +1,43 @@
+@using KombfuscaWebManager.Models.CertificateModels
+@model Certificate
+
+@{
+    ViewData["Title"] = "Validar certificado";
+    var searched = ViewBag.Searched is true;
+}
+
+<div class="container mt-5" style="max-width: 760px;">
+    <h1>Validação de Certificados da CAK</h1>
+    <p class="text-muted">Digite o código de validação do certificado e verifique se as informações do certificado estão de acordo com as exibidas nesta página.</p>
+    <form method="get" class="input-group mb-4">
+        <input name="code" value="@Context.Request.Query["code"]" class="form-control" placeholder="CAK-XXXXXXXX-XXXXXXXX" required />
+        <button class="btn btn-primary" type="submit">Validar</button>
+    </form>
+
+    @if (searched && Model is null)
+    {
+        <div class="alert alert-danger">Certificado não encontrado.</div>
+    }
+    else if (Model is not null)
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">@Model.Title</h2>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Em nome de</dt><dd class="col-sm-8">@Model.PlayerName</dd>
+                    <dt class="col-sm-4">Copa</dt><dd class="col-sm-8">@Model.CupName</dd>
+                    <dt class="col-sm-4">Período de Jogo</dt><dd class="col-sm-8">@Model.StartDate.ToString("dd/MM/yyyy") a @Model.EndDate.ToString("dd/MM/yyyy")</dd>
+                    <dt class="col-sm-4">Descrição</dt><dd class="col-sm-8">@Model.Description2</dd>
+                    <dt class="col-sm-4">Situação</dt>
+                    <dd class="col-sm-8"><strong class="@(Model.Status == CertificateStatus.Active ? "text-success" : "text-danger")"> @if (Model.Status == CertificateStatus.Active) {
+                        <span>Regular</span>
+                    } else
+                    {
+                        <span>Revogado</span>
+                    }
+                </strong></dd>
+                </dl>
+            </div>
+        </div>
+    }
+</div>

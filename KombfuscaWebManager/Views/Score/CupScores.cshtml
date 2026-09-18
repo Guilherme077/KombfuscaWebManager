@@ -63,6 +63,10 @@
                                     <th style="color: #1e3a8a; padding: 1rem; font-weight: 600; text-align: center; width: 12%;">
                                         New Beetle
                                     </th>
+                                    @if (User.IsInRole(KombfuscaWebManager.Models.Roles.Admin))
+                                    {
+                                        <th style="color: #1e3a8a; padding: 1rem;">Certificado</th>
+                                    }
                                 </tr>
                             </thead>
                             <tbody>
@@ -125,6 +129,19 @@
                                                 @score.NewBeetle
                                             </span>
                                         </td>
+                                        @if (User.IsInRole(KombfuscaWebManager.Models.Roles.Admin))
+                                        {
+                                            <td style="padding: 1rem; vertical-align: middle;">
+                                                @if (score.CertificateId.HasValue)
+                                                {
+                                                    <a asp-controller="Certificates" asp-action="Download" asp-route-id="@score.CertificateId" class="btn btn-sm btn-outline-success">Baixar</a>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-controller="Certificates" asp-action="Create" asp-route-cupId="@score.CupId" asp-route-userId="@score.UserId" class="btn btn-sm btn-success">Emitir</a>
+                                                }
+                                            </td>
+                                        }
                                     </tr>
                                 }
                             </tbody>

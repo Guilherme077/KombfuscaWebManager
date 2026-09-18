@@ -1,0 +1,127 @@
+﻿
+
+@using KombfuscaWebManager.Models.CertificateModels;
+@model Certificate
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    <style>
+
+        @@page { size: A4 landscape; margin: 0; }
+
+        html, body {
+            margin: 0;
+            width: 297mm;
+            height: 210mm;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+
+        .certificate {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            box-sizing: border-box;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            border: 12px double #0d3c61;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate::before {
+            content: "";
+            position: absolute;
+            inset: 8mm;
+            border: 1px solid #c6a15b;
+            pointer-events: none;
+        }
+
+        h1 {
+            color: #0d3c61;
+            font-size: 42px;
+            margin: 0 0 28px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .recipient {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .text {
+            max-width: 900px;
+            font-size: 20px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .lead {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .period {
+            margin-top: 28px;
+            font-size: 17px;
+        }
+
+        .validation {
+            position: absolute;
+            bottom: 13mm;
+            left: 25mm;
+            right: 25mm;
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="certificate">
+
+    <h1>@Model.Title</h1>
+
+    <p class="lead">@Model.Description1</p>
+
+    <div class="recipient">
+        @Model.PlayerName
+    </div>
+
+    <div class="text">
+        @Model.Description2
+    </div>
+
+    <p class="period">
+        Período:
+        <strong>@Model.StartDate.ToString("dd/MM/yyyy") - @Model.EndDate.ToString("dd/MM/yyyy")</strong>
+    </p>
+
+    <div class="validation">
+        Código de validação:
+        <strong>@Model.ValidationCode</strong><br />
+        Certificado digital emitido pelo Sistema Eletrônico do Kombfusca. Dispensa assinatura.<br />
+        Verifique a autenticidade em @($"{Context.Request.Scheme}://{Context.Request.Host}{Url.Action("Validate", "Certificates")}")
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -13,7 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         connectionString,
-        ServerVersion.AutoDetect(connectionString)
+        new MySqlServerVersion(new Version(8, 0, 0))
     ));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -27,6 +27,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient<ScoreService>();
 builder.Services.AddScoped<AdsService>();
+builder.Services.AddScoped<RazorViewRenderer>();
+builder.Services.AddScoped<CertificateService>();
 
 var app = builder.Build();
 

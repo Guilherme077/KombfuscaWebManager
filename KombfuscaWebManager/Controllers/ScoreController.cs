@@ -293,6 +293,9 @@ namespace KombfuscaWebManager.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
             var cupResults = await _context.CupResults.Where(c => c.UserId == userId).ToListAsync();
+            var certificates = await _context.Certificates
+                .Where(c => c.UserId == userId)
+                .ToDictionaryAsync(c => c.CupId);
 
             var myScores = new List<MyScoreViewModel>();
 
@@ -300,6 +303,7 @@ namespace KombfuscaWebManager.Controllers
             {
                 var cup = await _context.Cups.FindAsync(cupResult.CupId);
                 if (cup == null) continue;
+                certificates.TryGetValue(cupResult.CupId, out var certificate);
                 myScores.Add(new MyScoreViewModel
                 {
                     UserName = User.Identity?.Name ?? "",
@@ -313,7 +317,10 @@ namespace KombfuscaWebManager.Controllers
                     CupId = cup.Id,
                     CupName = cup.Name,
                     CupYear = cup.StartDate.Year,
-                    GeneratedAt = cupResult.GeneratedAt
+                    GeneratedAt = cupResult.GeneratedAt,
+                    UserId = cupResult.UserId,
+                    CertificateId = certificate?.Id,
+                    CertificateStatus = certificate?.Status
                 });
             }
 
@@ -326,6 +333,9 @@ namespace KombfuscaWebManager.Controllers
             var cupExists = await _context.Cups.Where(c => c.Id == cupId).FirstOrDefaultAsync();
             if (cupExists == null) return NotFound();
             var cupResults = await _context.CupResults.Where(c => c.CupId == cupId).ToListAsync();
+            var certificates = await _context.Certificates
+                .Where(c => c.CupId == cupId)
+                .ToDictionaryAsync(c => c.UserId);
 
             var scores = new List<MyScoreViewModel>();
 
@@ -334,6 +344,7 @@ namespace KombfuscaWebManager.Controllers
                 var cup = await _context.Cups.FindAsync(cupResult.CupId);
                 var user = await _context.Users.FindAsync(cupResult.UserId);
                 if (cup == null || user == null) return NotFound();
+                certificates.TryGetValue(cupResult.UserId, out var certificate);
                 scores.Add(new MyScoreViewModel
                 {
                     UserName = user.UserName ?? "",
@@ -347,7 +358,10 @@ namespace KombfuscaWebManager.Controllers
                     CupId = cup.Id,
                     CupName = cup.Name,
                     CupYear = cup.StartDate.Year,
-                    GeneratedAt = cupResult.GeneratedAt
+                    GeneratedAt = cupResult.GeneratedAt,
+                    UserId = cupResult.UserId,
+                    CertificateId = certificate?.Id,
+                    CertificateStatus = certificate?.Status
                 });
             }
 

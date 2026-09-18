@@ -1,0 +1,54 @@
+@using KombfuscaWebManager.Models.CertificateModels
+@model IEnumerable<Certificate>
+
+@{
+    ViewData["Title"] = "Certificados emitidos";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Certificados emitidos</h1>
+            <p class="text-muted mb-0">Consulte e baixe os certificados registrados no sistema.</p>
+        </div>
+        <a asp-controller="Cups" asp-action="Index" class="btn btn-secondary">Voltar para Copas</a>
+    </div>
+
+    @if (TempData["CertificateMessage"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Nenhum certificado foi emitido para o filtro selecionado.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr><th>Participante</th><th>Copa</th><th>Emissão</th><th>Código</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var certificate in Model)
+                {
+                    <tr>
+                        <td>@certificate.PlayerName</td>
+                        <td>@certificate.CupName</td>
+                        <td>@certificate.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><code>@certificate.ValidationCode</code></td>
+                        <td><span class="badge @(certificate.Status == CertificateStatus.Active ? "bg-success" : "bg-danger")">@certificate.Status</span></td>
+                        <td>
+                            @if (certificate.Status == CertificateStatus.Active)
+                            {
+                                <a asp-action="Download" asp-route-id="@certificate.Id" class="btn btn-sm btn-outline-primary">Baixar PDF</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

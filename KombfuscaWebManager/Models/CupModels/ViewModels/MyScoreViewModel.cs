@@ -14,6 +14,9 @@
         public string CupName { get; set; }
         public int CupYear { get; set; }
         public DateTime GeneratedAt { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public int? CertificateId { get; set; }
+        public KombfuscaWebManager.Models.CertificateModels.CertificateStatus? CertificateStatus { get; set; }
 
     }
 }
