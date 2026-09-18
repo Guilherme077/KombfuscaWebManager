@@ -1,0 +1,131 @@
+@using System.Text.Json
+@model KombfuscaWebManager.Models.CupModels.ViewModels.CupStatisticsViewModel
+
+@{
+    ViewData["Title"] = "Estatísticas da Copa";
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var competitorNames = Model.Competitors.Select(c => c.Name).ToList();
+}
+
+<style>
+    .statistics-header { border-bottom: 3px solid #3b82f6; }
+    .summary-card { border: 0; border-left: 5px solid #3b82f6; }
+    .chart-card { border: 0; height: 100%; }
+    .chart-wrapper { position: relative; min-height: 340px; }
+    .chart-wrapper.tall { min-height: 430px; }
+</style>
+
+<div class="container-fluid py-5">
+    <div class="statistics-header d-flex flex-wrap justify-content-between align-items-center gap-3 pb-4 mb-4">
+        <div>
+            <h1 class="mb-1" style="color: #1e3a8a;">Estatísticas: @Model.CupName</h1>
+            <span class="text-muted">Dados oficiais gerais da copa</span>
+        </div>
+        <a asp-action="CupScores" asp-route-cupId="@Model.CupId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar aos resultados
+        </a>
+    </div>
+
+    @if (!Model.Competitors.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>As estatísticas estarão disponíveis quando os resultados da copa forem publicados.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3"><div class="card summary-card shadow-sm"><div class="card-body"><small class="text-muted">Veículos</small><div class="fs-3 fw-bold text-primary">@Model.TotalVehicles</div></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card summary-card shadow-sm" style="border-left-color:#0ea5e9"><div class="card-body"><small class="text-muted">Kombis</small><div class="fs-3 fw-bold" style="color:#0284c7">@Model.TotalKombi</div></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card summary-card shadow-sm" style="border-left-color:#22c55e"><div class="card-body"><small class="text-muted">Fuscas</small><div class="fs-3 fw-bold" style="color:#16a34a">@Model.TotalFusca</div></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card summary-card shadow-sm" style="border-left-color:#ef4444"><div class="card-body"><small class="text-muted">New Beetles</small><div class="fs-3 fw-bold" style="color:#dc2626">@Model.TotalNewBeetle</div></div></div></div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-5">
+                <div class="card chart-card shadow-sm"><div class="card-body">
+                    <h2 class="h5 mb-1">Veículos na copa</h2><p class="text-muted small">Soma de todos os competidores (unidades)</p>
+                    <div class="chart-wrapper"><canvas id="vehicleTotalsChart" aria-label="Distribuição total dos veículos" role="img"></canvas></div>
+                </div></div>
+            </div>
+            <div class="col-lg-7">
+                <div class="card chart-card shadow-sm"><div class="card-body">
+                    <h2 class="h5 mb-1">Veículos por competidor</h2><p class="text-muted small">Quantidades finais registradas no resultado (unidades)</p>
+                    <div class="chart-wrapper"><canvas id="vehiclesByCompetitorChart" aria-label="Veículos por competidor" role="img"></canvas></div>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card chart-card shadow-sm"><div class="card-body">
+                    <h2 class="h5 mb-1">Pontuação final</h2><p class="text-muted small">Total de pontos por competidor</p>
+                    <div class="chart-wrapper tall"><canvas id="scoreByCompetitorChart" aria-label="Pontuação por competidor" role="img"></canvas></div>
+                </div></div>
+            </div>
+            <div class="col-lg-7">
+                <div class="card chart-card shadow-sm"><div class="card-body">
+                    <h2 class="h5 mb-1">Evolução da pontuação</h2>
+                    <p class="text-muted small">Acumulado de cada período. Este gráfico pode apresentar leves inconsistências antes do resultado final, pois não considera eventuais correções de inconsistências de múltiplos formulários de contagem</p>
+                    @if (Model.PeriodLabels.Any() && Model.ScoreEvolution.Any())
+                    {
+                        <div class="chart-wrapper tall"><canvas id="scoreEvolutionChart" aria-label="Evolução da pontuação por folha" role="img"></canvas></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-light border mt-4">Não há folhas de pontuação disponíveis para montar a evolução.</div>
+                    }
+                </div></div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        (() => {
+            if (typeof Chart === 'undefined' || @Json.Serialize(!Model.Competitors.Any())) return;
+
+            const names = @Html.Raw(JsonSerializer.Serialize(competitorNames, jsonOptions));
+            const competitors = @Html.Raw(JsonSerializer.Serialize(Model.Competitors, jsonOptions));
+            const palette = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#ea580c', '#0891b2', '#ca8a04', '#db2777'];
+            Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+            Chart.defaults.color = '#475569';
+
+            new Chart(document.getElementById('vehicleTotalsChart'), {
+                type: 'doughnut',
+                data: { labels: ['Kombi', 'Fusca', 'New Beetle'], datasets: [{ data: [@Model.TotalKombi, @Model.TotalFusca, @Model.TotalNewBeetle], backgroundColor: ['#0ea5e9', '#22c55e', '#ef4444'], borderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('vehiclesByCompetitorChart'), {
+                type: 'bar',
+                data: { labels: names, datasets: [
+                    { label: 'Kombi', data: competitors.map(c => c.kombi), backgroundColor: '#0ea5e9' },
+                    { label: 'Fusca', data: competitors.map(c => c.fusca), backgroundColor: '#22c55e' },
+                    { label: 'New Beetle', data: competitors.map(c => c.newBeetle), backgroundColor: '#ef4444' }
+                ] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('scoreByCompetitorChart'), {
+                type: 'bar',
+                data: { labels: names, datasets: [{ label: 'Pontos', data: competitors.map(c => c.totalScore), backgroundColor: '#3b82f6' }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } }
+            });
+
+            const evolutionCanvas = document.getElementById('scoreEvolutionChart');
+            if (evolutionCanvas) {
+                const evolution = @Html.Raw(JsonSerializer.Serialize(Model.ScoreEvolution, jsonOptions));
+                new Chart(evolutionCanvas, {
+                    type: 'line',
+                    data: { labels: @Html.Raw(JsonSerializer.Serialize(Model.PeriodLabels, jsonOptions)), datasets: evolution.map((series, index) => ({
+                        label: series.name, data: series.cumulativeScores, borderColor: palette[index % palette.length], backgroundColor: palette[index % palette.length], tension: .25, spanGaps: true
+                    })) },
+                    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+        })();
+    </script>
+}

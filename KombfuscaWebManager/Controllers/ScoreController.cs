@@ -367,5 +367,117 @@ namespace KombfuscaWebManager.Controllers
 
             return View(scores);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CupStatistics(int cupId)
+        {
+            var cup = await _context.Cups
+                .AsNoTracking()
+                .Include(c => c.Periods)
+                .FirstOrDefaultAsync(c => c.Id == cupId);
+
+            if (cup == null) return NotFound();
+
+            var results = await _context.CupResults
+                .AsNoTracking()
+                .Where(r => r.CupId == cupId)
+                .OrderBy(r => r.Position)
+                .ToListAsync();
+
+            var userIds = results.Select(r => r.UserId).Distinct().ToList();
+            var users = await _context.Users
+                .AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id);
+
+            string CompetitorName(string userId)
+            {
+                if (!users.TryGetValue(userId, out var user)) return "Competidor";
+                return !string.IsNullOrWhiteSpace(user.FullName)
+                    ? user.FullName
+                    : user.UserName ?? "Competidor";
+            }
+
+            var model = new CupStatisticsViewModel
+            {
+                CupId = cup.Id,
+                CupName = cup.Name,
+                CupYear = cup.StartDate.Year,
+                TotalParticipants = results.Count,
+                TotalKombi = results.Sum(r => r.QtdKombi),
+                TotalFusca = results.Sum(r => r.QtdFusca),
+                TotalNewBeetle = results.Sum(r => r.QtdNewBeetle),
+                TotalVehicles = results.Sum(r => r.QtdKombi) + results.Sum(r => r.QtdFusca) + results.Sum(r => r.QtdNewBeetle),
+                Competitors = results.Select(r => new CompetitorStatisticsViewModel
+                {
+                    UserId = r.UserId,
+                    Name = CompetitorName(r.UserId),
+                    Kombi = r.QtdKombi,
+                    Fusca = r.QtdFusca,
+                    NewBeetle = r.QtdNewBeetle,
+                    TotalScore = r.TotalScore
+                }).ToList()
+            };
+
+            var periods = cup.Periods.OrderBy(p => p.PaperNumber).ThenBy(p => p.Id).ToList();
+            model.PeriodLabels = periods
+                .Select(p => string.IsNullOrWhiteSpace(p.Description)
+                    ? $"Papel {p.PaperNumber}"
+                    : $"{p.Description}")
+                .ToList();
+
+            if (userIds.Count > 0 && periods.Count > 0)
+            {
+                var periodIds = periods.Select(p => p.Id).ToList();
+                var scoreSheets = await _context.ScoreSheets
+                    .AsNoTracking()
+                    .Where(s => periodIds.Contains(s.PeriodId) && userIds.Contains(s.UserId))
+                    .ToListAsync();
+
+                foreach (var result in results)
+                {
+                    var cumulative = 0;
+                    var points = new List<int?>();
+
+                    for (var periodIndex = 0; periodIndex < periods.Count; periodIndex++)
+                    {
+                        var period = periods[periodIndex];
+
+                        // CupResult is the official consolidated result. Always use it as
+                        // the final point of the evolution, regardless of sheet divergences.
+                        if (periodIndex == periods.Count - 1)
+                        {
+                            points.Add(result.TotalScore);
+                            continue;
+                        }
+
+                        var readings = scoreSheets
+                            .Where(s => s.UserId == result.UserId && s.PeriodId == period.Id)
+                            .OrderBy(s => s.Id)
+                            .ToList();
+
+                        if (readings.Count == 0)
+                        {
+                            points.Add(null);
+                            continue;
+                        }
+
+                        var firstReading = readings[0];
+                        cumulative += firstReading.Kombi
+                            + (firstReading.Fusca * 2)
+                            + (firstReading.NewBeetle * 3);
+                        points.Add(cumulative);
+                    }
+
+                    model.ScoreEvolution.Add(new ScoreEvolutionViewModel
+                    {
+                        Name = CompetitorName(result.UserId),
+                        CumulativeScores = points
+                    });
+                }
+            }
+
+            return View(model);
+        }
     }
 }

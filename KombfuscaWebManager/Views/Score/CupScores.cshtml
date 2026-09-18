@@ -11,9 +11,15 @@
     <div class="row mb-5">
         <div class="col-12">
             <div style="padding-bottom: 1.5rem; border-bottom: 3px solid #3b82f6;">
-                <h1 style="color: #1e3a8a; margin-bottom: 0.5rem;">
-                    @firstResult?.CupName
-                </h1>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <h1 style="color: #1e3a8a; margin-bottom: 0.5rem;">
+                        @firstResult?.CupName
+                    </h1>
+                    @if (firstResult != null)
+                    {
+                        <a asp-action="CupStatistics" asp-controller="Score" asp-route-cupId="@firstResult.CupId" class="btn btn-primary"> Estatísticas da Copa </a>
+                    }
+                </div>
                 <small class="text-muted" style="font-size: 1rem;">
                     Ano: @firstResult?.CupYear
                 </small>
