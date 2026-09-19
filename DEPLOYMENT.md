@@ -51,7 +51,7 @@ sudo chmod 640 /etc/kombfusca/kombfusca.env
 sudo nano /etc/kombfusca/kombfusca.env
 ```
 
-Gere cada senha com `openssl rand -base64 36`. O admin só é criado quando ainda não existe; depois do primeiro acesso, altere a senha e remova `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` do arquivo.
+Gere cada senha com `openssl rand -base64 36`. Preencha também `SEED_ADMIN_FULL_NAME`. O admin só é criado quando ainda não existe; depois do primeiro acesso, altere a senha e remova `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` e `SEED_ADMIN_FULL_NAME` do arquivo.
 
 O projeto chama um segundo serviço em `/scorecounter`, mas ele não está neste repositório. Defina `SCORE_COUNTER_BASE_URL` com a URL real. Se for outro container, conecte-o à rede do Compose. `localhost` dentro do container não aponta para outro serviço.
 

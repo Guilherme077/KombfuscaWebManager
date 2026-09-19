@@ -33,6 +33,7 @@ namespace KombfuscaWebManager.Data
             //Add Admin to Database
             var email = configuration["SeedAdmin:Email"];
             var password = configuration["SeedAdmin:Password"];
+            var fullName = configuration["SeedAdmin:FullName"];
 
             // Roles are always created. The initial administrator is optional and
             // must be supplied through secrets/environment variables.
@@ -50,7 +51,8 @@ namespace KombfuscaWebManager.Data
                 {
                     UserName = email,
                     Email = email,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    FullName = string.IsNullOrWhiteSpace(fullName) ? "Administrador" : fullName
                 };
 
                 var result =

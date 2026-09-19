@@ -14,6 +14,7 @@ services:
       ConnectionStrings__DefaultConnection: server=db;port=3306;database=${MYSQL_DATABASE};user=${MYSQL_USER};password=${MYSQL_PASSWORD}
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-}
       SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-}
+      SeedAdmin__FullName: ${SEED_ADMIN_FULL_NAME:-Administrador}
       ScoreCounter__BaseUrl: ${SCORE_COUNTER_BASE_URL:-http://scorecounter:5000}
     volumes:
       - data_protection_keys:/home/pwuser/.aspnet/DataProtection-Keys
