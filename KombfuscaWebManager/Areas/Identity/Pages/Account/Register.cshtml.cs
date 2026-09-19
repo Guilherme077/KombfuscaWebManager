@@ -22,6 +22,7 @@ using KombfuscaWebManager.Models;
 
 namespace KombfuscaWebManager.Areas.Identity.Pages.Account;
 
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class RegisterModel : PageModel
 {
     private readonly SignInManager<ApplicationUser> _signInManager;

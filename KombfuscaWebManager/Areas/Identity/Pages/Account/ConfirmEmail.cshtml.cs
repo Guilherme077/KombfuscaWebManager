@@ -15,6 +15,7 @@ using KombfuscaWebManager.Models;
 
 namespace KombfuscaWebManager.Areas.Identity.Pages.Account;
 
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class ConfirmEmailModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;

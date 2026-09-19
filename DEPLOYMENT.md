@@ -67,6 +67,13 @@ curl -fsS https://SEU_DOMINIO/health
 
 A aplicação espera o MySQL, aplica migrations e cria os papéis/admin inicial na inicialização.
 
+Se o volume `data_protection_keys` já tiver sido criado por uma versão anterior como `root`, corrija sua propriedade uma única vez e reinicie a aplicação:
+
+```bash
+docker exec -u root kombfusca-app-1 chown -R pwuser:pwuser /home/pwuser/.aspnet/DataProtection-Keys
+docker restart kombfusca-app-1
+```
+
 ## 6. Deploy remoto automático
 
 O workflow `.github/workflows/deploy-production.yml` roda em cada push em `master` (a branch atual deste repositório) e também manualmente. Ele acessa o servidor via SSH, atualiza o Git, faz o build e reinicia os containers. Crie no GitHub um Environment `production` com:

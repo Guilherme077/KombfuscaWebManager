@@ -16,6 +16,7 @@ using KombfuscaWebManager.Models;
 namespace KombfuscaWebManager.Areas.Identity.Pages.Account;
 
 [AllowAnonymous]
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class RegisterConfirmationModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;

@@ -17,5 +17,7 @@ ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_EnableDiagnostics=0
 COPY --from=build /app/publish .
 EXPOSE 8080
+RUN mkdir -p /home/pwuser/.aspnet/DataProtection-Keys \
+    && chown -R pwuser:pwuser /home/pwuser/.aspnet
 USER pwuser
 ENTRYPOINT ["./KombfuscaWebManager"]
