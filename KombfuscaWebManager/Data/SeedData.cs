@@ -5,7 +5,7 @@ namespace KombfuscaWebManager.Data
 {
     public static class SeedData
     {
-        public static async Task Initialize(IServiceProvider services)
+        public static async Task Initialize(IServiceProvider services, IConfiguration configuration)
         {
             var roleManager =
                 services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -31,8 +31,15 @@ namespace KombfuscaWebManager.Data
 
 
             //Add Admin to Database
-            const string email = "admin@kombfusca.com";
-            const string password = "Admin@123456";
+            var email = configuration["SeedAdmin:Email"];
+            var password = configuration["SeedAdmin:Password"];
+
+            // Roles are always created. The initial administrator is optional and
+            // must be supplied through secrets/environment variables.
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                return;
+            }
 
             var admin =
             await userManager.FindByEmailAsync(email);

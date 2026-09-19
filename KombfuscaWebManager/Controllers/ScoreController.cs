@@ -19,17 +19,20 @@ namespace KombfuscaWebManager.Controllers
         private readonly ApplicationDbContext _context;
         private readonly HttpClient _httpClient;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
         public ScoreController(
             ScoreService _scoreService,
             ApplicationDbContext context,
             HttpClient httpClient,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration)
         {
             scoreService = _scoreService;
             _context = context;
             _httpClient = httpClient;
             _userManager = userManager;
+            _configuration = configuration;
         }
         
         public async Task<IActionResult> Index()
@@ -195,7 +198,9 @@ namespace KombfuscaWebManager.Controllers
 
             content.Add(new StreamContent(stream), "picture", image.FileName);
 
-            var response = await _httpClient.PostAsync("http://localhost:5000/scorecounter", content);
+            var scoreCounterBaseUrl = _configuration["ScoreCounter:BaseUrl"]?.TrimEnd('/')
+                ?? throw new InvalidOperationException("ScoreCounter:BaseUrl não configurada.");
+            var response = await _httpClient.PostAsync($"{scoreCounterBaseUrl}/scorecounter", content);
 
             var body = await response.Content.ReadAsStringAsync();
 

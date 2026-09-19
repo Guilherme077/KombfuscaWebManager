@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
+WORKDIR /src
+COPY KombfuscaWebManager/KombfuscaWebManager.csproj KombfuscaWebManager/
+RUN dotnet restore KombfuscaWebManager/KombfuscaWebManager.csproj
+COPY . .
+RUN dotnet publish KombfuscaWebManager/KombfuscaWebManager.csproj \
+    --configuration Release \
+    --output /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
+
+FROM mcr.microsoft.com/playwright/dotnet:v1.62.0-noble AS runtime
+WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_EnableDiagnostics=0
+COPY --from=build /app/publish .
+EXPOSE 8080
+USER pwuser
+ENTRYPOINT ["dotnet", "KombfuscaWebManager.dll"]
