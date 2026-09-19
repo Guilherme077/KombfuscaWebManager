@@ -1,15 +1,17 @@
 # Produção no Ubuntu (Proxmox)
 
-A implantação usa Docker Compose com aplicação ASP.NET Core 8, MySQL 8.4 e Caddy. O Caddy publica 80/443 e gerencia HTTPS; o MySQL fica apenas na rede interna. Banco, certificados e chaves de cookies persistem em volumes Docker.
+A implantação usa Docker Compose com aplicação ASP.NET Core 8, MySQL 8.4 e Caddy. O HTTPS termina no Cloudflare Tunnel; o Caddy recebe HTTP apenas pela rede privada e encaminha para a aplicação. O MySQL fica apenas na rede interna. Banco e chaves de cookies persistem em volumes Docker.
 
-## 1. Rede e DNS
+## 1. Rede e Cloudflare Tunnel
 
 - Aloque ao container ao menos 2 vCPU, 2 GB de RAM e 20 GB de disco e use IP fixo.
-- Aponte o registro DNS `A` do domínio para seu IP público.
-- Encaminhe TCP 80 e TCP/UDP 443 para o container. Nunca exponha 3306.
+- Publique o hostname no Cloudflare Tunnel apontando para `http://IP_PRIVADO_DO_CAKWEB:80`.
+- Configure `HTTP Host Header` no tunnel com o mesmo valor de `DOMAIN`.
+- Permita TCP 80 apenas do container `cloudflared` para o container da aplicação.
+- Não encaminhe 80/443 no roteador e nunca exponha 3306.
 - Restrinja SSH por chave e, de preferência, VPN/Tailscale ou IP de origem.
 
-HTTPS automático requer domínio público e portas 80/443 acessíveis. Para uso só interno, adapte o Caddy ao proxy/TLS da rede.
+O trecho privado entre os containers usa HTTP; o tráfego do navegador até o Cloudflare continua protegido por HTTPS. Para criptografar também a rede interna, use um Cloudflare Origin Certificate ou uma PKI interna em vez de ACME público.
 
 ## 2. Instalar Docker
 
