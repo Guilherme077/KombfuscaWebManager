@@ -15,7 +15,9 @@ services:
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-}
       SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-}
       SeedAdmin__FullName: ${SEED_ADMIN_FULL_NAME:-Administrador}
-      ScoreCounter__BaseUrl: ${SCORE_COUNTER_BASE_URL:-http://scorecounter:5000}
+      ScoreCounter__BaseUrl: ${SCORE_COUNTER_BASE_URL:-http://host.docker.internal:5000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - data_protection_keys:/home/pwuser/.aspnet/DataProtection-Keys
     networks:
