@@ -55,6 +55,8 @@ sudo nano /etc/kombfusca/kombfusca.env
 
 Gere cada senha com `openssl rand -base64 36`. Preencha também `SEED_ADMIN_FULL_NAME`. O admin só é criado quando ainda não existe; depois do primeiro acesso, altere a senha e remova `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` e `SEED_ADMIN_FULL_NAME` do arquivo.
 
+Use `APP_TIMEZONE=America/Sao_Paulo` para que `DateTime.Now` e a formatação de horários da aplicação sigam o horário de Brasília. Datas persistidas explicitamente como UTC devem continuar em UTC e ser convertidas somente para exibição.
+
 O projeto chama um segundo serviço em `/scorecounter`, mas ele não está neste repositório. Se a API estiver diretamente no mesmo Ubuntu que hospeda o Docker, use `SCORE_COUNTER_BASE_URL=http://host.docker.internal:5000`; o Compose mapeia esse nome para o gateway do host. A API precisa escutar em `0.0.0.0:5000` ou no IP da bridge Docker, pois `127.0.0.1:5000` aceita somente processos do próprio host. Se a API for outro container, prefira colocá-la na rede do Compose e use o nome do serviço. `localhost` dentro do container da aplicação nunca aponta para o host ou para outro container. O Cloudflare Tunnel não deve publicar a API; essa chamada é exclusivamente interna.
 
 ## 5. Primeiro deploy

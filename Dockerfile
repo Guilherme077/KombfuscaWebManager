@@ -18,6 +18,7 @@ ENV ASPNETCORE_URLS=http://+:8080 \
 COPY --from=build /app/publish .
 EXPOSE 8080
 RUN mkdir -p /home/pwuser/.aspnet/DataProtection-Keys \
-    && chown -R pwuser:pwuser /home/pwuser/.aspnet
+    && chown -R pwuser:pwuser /home/pwuser/.aspnet \
+    && find /app/.playwright/node -type f -name node -exec chmod 755 {} \;
 USER pwuser
 ENTRYPOINT ["./KombfuscaWebManager"]

@@ -11,6 +11,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      TZ: ${APP_TIMEZONE:-America/Sao_Paulo}
       ConnectionStrings__DefaultConnection: server=db;port=3306;database=${MYSQL_DATABASE};user=${MYSQL_USER};password=${MYSQL_PASSWORD}
       SeedAdmin__Email: ${SEED_ADMIN_EMAIL:-}
       SeedAdmin__Password: ${SEED_ADMIN_PASSWORD:-}

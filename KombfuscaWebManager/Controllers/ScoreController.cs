@@ -297,7 +297,11 @@ namespace KombfuscaWebManager.Controllers
             if (userId == null) return Unauthorized();
 
             var user = await _userManager.FindByIdAsync(userId);
-            var cupResults = await _context.CupResults.Where(c => c.UserId == userId).ToListAsync();
+            var isAdmin = User.IsInRole(Roles.Admin);
+            var cupResults = await _context.CupResults
+                .Where(r => r.UserId == userId && (isAdmin || _context.Cups.Any(c =>
+                    c.Id == r.CupId && c.cupStatus == CupStatus.finishedResultsAvailable)))
+                .ToListAsync();
             var certificates = await _context.Certificates
                 .Where(c => c.UserId == userId)
                 .ToDictionaryAsync(c => c.CupId);
@@ -337,6 +341,9 @@ namespace KombfuscaWebManager.Controllers
         {
             var cupExists = await _context.Cups.Where(c => c.Id == cupId).FirstOrDefaultAsync();
             if (cupExists == null) return NotFound();
+            if (!User.IsInRole(Roles.Admin) && cupExists.cupStatus != CupStatus.finishedResultsAvailable)
+                return Forbid();
+
             var cupResults = await _context.CupResults.Where(c => c.CupId == cupId).ToListAsync();
             var certificates = await _context.Certificates
                 .Where(c => c.CupId == cupId)
@@ -382,6 +389,9 @@ namespace KombfuscaWebManager.Controllers
                 .FirstOrDefaultAsync(c => c.Id == cupId);
 
             if (cup == null) return NotFound();
+
+            if (!User.IsInRole(Roles.Admin) && cup.cupStatus != CupStatus.finishedResultsAvailable)
+                return Forbid();
 
             var results = await _context.CupResults
                 .AsNoTracking()

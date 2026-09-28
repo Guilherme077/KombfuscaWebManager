@@ -54,7 +54,11 @@ namespace KombfuscaWebManager.Controllers
             var user = await _userManager.FindByIdAsync(userId);
 
             var cupsToSub = await _context.Cups.Where(c => c.cupStatus == CupStatus.openSubscriptions).ToListAsync();
-            var cupsParticipated = await _context.CupResults.Where(c => c.UserId == userId).ToListAsync();
+            var isAdmin = User.IsInRole(Roles.Admin);
+            var cupsParticipated = await _context.CupResults
+                .Where(r => r.UserId == userId && (isAdmin || _context.Cups.Any(c =>
+                    c.Id == r.CupId && c.cupStatus == CupStatus.finishedResultsAvailable)))
+                .ToListAsync();
 
             var userCups = new List<MyScoreViewModel>();
 
@@ -71,8 +75,8 @@ namespace KombfuscaWebManager.Controllers
                 });
             }
 
-            var numberCups = await _context.CupResults.Where(c => c.UserId == userId).CountAsync();
-            var numberVictory = await _context.CupResults.Where(c => c.UserId == userId && c.Position == 1).CountAsync();
+            var numberCups = cupsParticipated.Count;
+            var numberVictory = cupsParticipated.Count(c => c.Position == 1);
 
             var vm = new PlayerAreaViewModel()
             {
