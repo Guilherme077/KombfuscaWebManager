@@ -1,0 +1,136 @@
+@using KombfuscaWebManager.Models.UsersModels.ViewModels
+@model UserProfileViewModel
+@{
+    ViewData["Title"] = $"Perfil de {Model.Name}";
+    var initials = string.Concat(Model.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(part => part[..1])).ToUpperInvariant();
+}
+<link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+
+<div class="public-profile mt-4 mb-5">
+    <header class="profile-hero">
+        <div class="profile-avatar" aria-hidden="true">@initials</div>
+        <div class="profile-heading">
+            <span class="profile-eyebrow"><i class="bi bi-person-check" aria-hidden="true"></i> Competidor</span>
+            <h1>@Model.Name</h1>
+            <p></p>
+        </div>
+        <div class="profile-share">
+            <button type="button" class="profile-copy-button" id="copy-profile-link"
+                    data-profile-path="@Url.Action("Profile", "Users", new { id = Model.UserId, area = "" })">
+                <i class="bi bi-link-45deg" aria-hidden="true"></i> Copiar link
+            </button>
+            <span id="profile-copy-status" class="profile-copy-status" role="status" aria-live="polite"></span>
+            <div id="profile-copy-fallback" hidden>
+                <label for="profile-share-url" class="profile-copy-status">Link do perfil</label>
+                <input id="profile-share-url" type="url" class="form-control form-control-sm" readonly />
+            </div>
+        </div>
+    </header>
+
+    <section class="profile-stats" aria-label="Conquistas e sequências de vitórias">
+        @foreach (var stat in new[] {
+            (Label: "Copas disputadas", Value: Model.TotalCups, Icon: "flag-fill", Tone: "blue"),
+            (Label: "1º lugar", Value: Model.FirstPlaces, Icon: "trophy-fill", Tone: "gold"),
+            (Label: "2º lugar", Value: Model.SecondPlaces, Icon: "award-fill", Tone: "silver"),
+            (Label: "3º lugar", Value: Model.ThirdPlaces, Icon: "award-fill", Tone: "bronze"),
+            (Label: "Sequência atual", Value: Model.CurrentWinStreak, Icon: "fire", Tone: "orange"),
+            (Label: "Melhor sequência", Value: Model.BestWinStreak, Icon: "fire", Tone: "orange") })
+        {
+            <div class="profile-stat profile-tone-@stat.Tone">
+                <span class="profile-stat-icon"><i class="bi bi-@stat.Icon" aria-hidden="true"></i></span>
+                <div>
+                    <div class="profile-stat-value">@stat.Value.ToString("N0")</div>
+                    <div class="profile-stat-label">@stat.Label</div>
+                    @if (stat.Tone == "orange")
+                    {
+                        <span class="profile-stat-caption">vitórias seguidas</span>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+
+    <section class="profile-panel" aria-labelledby="vehicles-heading">
+        <div class="profile-section-heading">
+            <h2 id="vehicles-heading"><i class="bi bi-car-front" aria-hidden="true"></i> Todos os veículos vistos</h2>
+            @if (Model.VehicleCups > 0)
+            {
+                <span class="profile-chip">@Model.VehicleCups copas contabilizadas</span>
+            }
+        </div>
+        @if (Model.VehicleCups > 0)
+        {
+            <div class="profile-vehicles">
+                <div class="profile-vehicle profile-tone-teal">
+                    <i class="bi bi-truck-front-fill" aria-hidden="true"></i>
+                    <div><strong>@Model.TotalKombi.ToString("N0")</strong><span>Kombis</span></div>
+                </div>
+                <div class="profile-vehicle profile-tone-blue">
+                    <i class="bi bi-car-front-fill" aria-hidden="true"></i>
+                    <div><strong>@Model.TotalFusca.ToString("N0")</strong><span>Fuscas</span></div>
+                </div>
+                <div class="profile-vehicle profile-tone-purple">
+                    <i class="bi bi-car-front-fill" aria-hidden="true"></i>
+                    <div><strong>@Model.TotalNewBeetle.ToString("N0")</strong><span>New Beetles</span></div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="profile-empty">
+                <span class="profile-empty-icon"><i class="bi bi-car-front" aria-hidden="true"></i></span>
+                <div><strong>As contagens chegam em breve</strong><p>Ainda não há resultados com contagens precisas de veículos.</p></div>
+            </div>
+        }
+        <p class="profile-footnote"><i class="bi bi-info-circle" aria-hidden="true"></i> Quantidade de Kombis, Fuscas e New Beetles de copas sem registro preciso não são consideradas.</p>
+    </section>
+
+    <section class="profile-panel" aria-labelledby="cups-heading">
+        <div class="profile-section-heading">
+            <h2 id="cups-heading"><i class="bi bi-flag" aria-hidden="true"></i> Histórico de copas</h2>
+            <span class="profile-chip">Mais recentes primeiro</span>
+        </div>
+        @if (Model.Cups.Count == 0)
+        {
+            <div class="profile-empty">
+                <span class="profile-empty-icon"><i class="bi bi-flag" aria-hidden="true"></i></span>
+                <div><strong>A história está só começando</strong><p>As participações aparecerão aqui a cada nova copa.</p></div>
+            </div>
+        }
+        else
+        {
+            <ul class="profile-cup-list">
+                @foreach (var cup in Model.Cups)
+                {
+                    var tone = cup.Position switch { 1 => "gold", 2 => "silver", 3 => "bronze", _ => "blue" };
+                    <li class="profile-cup">
+                        <span class="profile-cup-icon profile-tone-@tone" aria-hidden="true"><i class="bi @(cup.Position <= 3 ? "bi-trophy-fill" : "bi-flag-fill")"></i></span>
+                        <div class="profile-cup-name">
+                            <h3>@cup.Name</h3>
+                            <span><i class="bi bi-calendar3" aria-hidden="true"></i> @cup.StartDate.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <div class="profile-cup-result">
+                            @if (cup.Position.HasValue)
+                            {
+                                <span class="profile-placement profile-tone-@tone">@(cup.Position)º lugar</span>
+                                <span class="profile-points">@cup.TotalScore?.ToString("N0") <span>pontos</span></span>
+                            }
+                            else
+                            {
+                                <span class="profile-status">@cup.StatusLabel</span>
+                            }
+                        </div>
+                        @if (cup.Position.HasValue)
+                        {
+                            <a class="profile-result-link" asp-controller="Score" asp-action="CupScores" asp-route-cupId="@cup.CupId" aria-label="Ver resultado de @cup.Name">Resultado <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/profile.js" asp-append-version="true"></script>
+}

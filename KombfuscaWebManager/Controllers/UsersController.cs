@@ -1,5 +1,8 @@
 ﻿using KombfuscaWebManager.Models;
 using KombfuscaWebManager.Models.UsersModels.ViewModels;
+using KombfuscaWebManager.Data;
+using KombfuscaWebManager.Models.CupModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +13,50 @@ namespace KombfuscaWebManager.Controllers
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        public UsersController(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Profile(string? id, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return NotFound();
+
+            // Usernames may contain emails; only project public profile data.
+            var user = await _context.Users.AsNoTracking()
+                .Where(u => u.Id == id)
+                .Select(u => new { u.Id, u.FullName })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (user == null) return NotFound();
+
+            // Published results and subscriptions share one history query, without per-cup requests.
+            var cups = await (
+                from cup in _context.Cups.AsNoTracking()
+                join result in _context.CupResults.AsNoTracking().Where(r => r.UserId == id)
+                    on cup.Id equals result.CupId into results
+                from result in results.DefaultIfEmpty()
+                where (result != null && cup.cupStatus == CupStatus.finishedResultsAvailable)
+                    || _context.Participations.Any(p => p.UserId == id && p.CupId == cup.Id)
+                orderby cup.StartDate descending, cup.Id descending
+                select new UserProfileCupViewModel
+                {
+                    CupId = cup.Id,
+                    Name = cup.Name,
+                    StartDate = cup.StartDate,
+                    Status = cup.cupStatus,
+                    Position = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.Position : null,
+                    TotalScore = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.TotalScore : null,
+                    Kombi = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.QtdKombi : null,
+                    Fusca = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.QtdFusca : null,
+                    NewBeetle = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.QtdNewBeetle : null
+                }).ToListAsync(cancellationToken);
+
+            return View(UserProfileViewModel.Create(user.Id, user.FullName, cups));
         }
 
 

@@ -7,7 +7,7 @@
     <tr>
 
         <td>
-            @(user.FullName ?? user.UserName)
+            <a asp-action="Profile" asp-route-id="@user.Id">@(user.FullName ?? user.UserName)</a>
         </td>
 
         <td>

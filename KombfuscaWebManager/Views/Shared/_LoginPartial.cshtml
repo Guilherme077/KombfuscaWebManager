@@ -10,7 +10,10 @@
     var displayName = user?.FullName ?? user?.UserName ?? User.Identity?.Name;
 
     <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@displayName</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Profile" asp-route-id="@user?.Id" title="Ver perfil público">@displayName</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Configurações do perfil" aria-label="Configurações do perfil"><i class="bi bi-gear" aria-hidden="true"></i></a>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
