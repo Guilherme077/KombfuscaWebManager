@@ -367,3 +367,4 @@ FodyWeavers.xsd
 .env
 *.env
 !deploy/.env.example
+scripts/seed-test-data.sql
