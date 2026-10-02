@@ -286,7 +286,7 @@ namespace KombfuscaWebManager.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", "Periods", new { id = model.PeriodId });
+            return RedirectToAction("Index", "Score", new { id = model.PeriodId });
         }
 
         [HttpGet]
