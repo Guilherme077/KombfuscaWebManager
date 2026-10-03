@@ -286,7 +286,7 @@ namespace KombfuscaWebManager.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Score", new { id = model.PeriodId });
+            return RedirectToAction("Index", "Score");
         }
 
         [HttpGet]
@@ -301,6 +301,7 @@ namespace KombfuscaWebManager.Controllers
             var cupResults = await _context.CupResults
                 .Where(r => r.UserId == userId && (isAdmin || _context.Cups.Any(c =>
                     c.Id == r.CupId && c.cupStatus == CupStatus.finishedResultsAvailable)))
+                .OrderByDescending(r => r.Id)
                 .ToListAsync();
             var certificates = await _context.Certificates
                 .Where(c => c.UserId == userId)

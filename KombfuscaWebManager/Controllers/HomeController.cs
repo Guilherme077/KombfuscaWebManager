@@ -58,6 +58,7 @@ namespace KombfuscaWebManager.Controllers
             var cupsParticipated = await _context.CupResults
                 .Where(r => r.UserId == userId && (isAdmin || _context.Cups.Any(c =>
                     c.Id == r.CupId && c.cupStatus == CupStatus.finishedResultsAvailable)))
+                .OrderByDescending(r => r.Id)
                 .ToListAsync();
 
             var userCups = new List<MyScoreViewModel>();
