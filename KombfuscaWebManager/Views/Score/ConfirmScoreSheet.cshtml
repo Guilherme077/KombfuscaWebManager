@@ -59,7 +59,7 @@
                             @foreach (var participation in Model.AvailableParticipations)
                             {
                                 <option value="@participation.UserId">
-                                    @participation.FullName - @participation.TeamName
+                                    @participation.UserName - @participation.TeamName
                                 </option>
                             }
                         </select>

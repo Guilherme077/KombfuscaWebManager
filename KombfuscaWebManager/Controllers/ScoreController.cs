@@ -252,7 +252,7 @@ namespace KombfuscaWebManager.Controllers
                         new ParticipationDropdownViewModel
                         {
                             UserId = participation.UserId,
-                            UserName = participation.User?.UserName ?? "",
+                            UserName = participation.User?.FullName ?? "",
                             TeamName = participation.TeamName
                         });
                 }
