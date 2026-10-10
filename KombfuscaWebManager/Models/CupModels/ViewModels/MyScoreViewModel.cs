@@ -1,4 +1,6 @@
-﻿namespace KombfuscaWebManager.Models.CupModels.ViewModels
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+
+namespace KombfuscaWebManager.Models.CupModels.ViewModels
 {
     public class MyScoreViewModel
     {
@@ -12,6 +14,7 @@
         public int Position { get; set; }
         public int CupId { get; set; }
         public string CupName { get; set; }
+        public string CupPlace { get; set; }
         public int CupYear { get; set; }
         public DateTime GeneratedAt { get; set; }
         public string UserId { get; set; } = string.Empty;
