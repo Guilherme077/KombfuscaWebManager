@@ -39,7 +39,7 @@ namespace KombfuscaWebManager.Controllers
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Forbid();
 
             // Check if user is admin
             bool isAdmin = User.IsInRole("Admin");

@@ -34,7 +34,7 @@ namespace KombfuscaWebManager.Controllers
                 }
                 return RedirectToAction("AdsCentral");
             }
-            return Unauthorized();
+            return Forbid();
         }
 
         [Authorize]
@@ -540,7 +540,7 @@ namespace KombfuscaWebManager.Controllers
             if (duplicatedValue)
             {
                 return AuctionBadRequest("Valor de lance já utilizado",
-                    $"Já existe um lance de R$ {newBid.Value:N2} neste período. Escolha um valor diferente para evitar empate no placar.");
+                    $"Já existe um lance de R$ {newBid.Value:N2} neste período. Escolha um valor diferente para evitar empate no placar. O lance não foi processado.");
             }
 
             if (oldBid == null)
