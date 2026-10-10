@@ -24,6 +24,7 @@ namespace KombfuscaWebManager.Controllers
             _adsService = adsService;
         }
 
+        [Authorize]
         public IActionResult Index()
         {
             if(User.Identity.IsAuthenticated)

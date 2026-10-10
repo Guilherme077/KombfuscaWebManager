@@ -1,43 +1,85 @@
-﻿@using KombfuscaWebManager.Models.CupModels;
-@model IEnumerable<Cup>;
+@using KombfuscaWebManager.Models.CupModels
+@using KombfuscaWebManager.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@model IEnumerable<Cup>
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Início";
+    var nextCup = Model.FirstOrDefault();
 }
 
-<div class="bg-primary bg-gradient text-white text-center py-5 mb-4 rounded-3 shadow">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Sistema Eletrônico do Kombfusca</h1>
-        <p class="lead text-light">Gerenciador Web de Jogos do Kombfusca</p>
-    </div>
-</div>
+<div class="home-page">
+    <section class="home-hero" aria-labelledby="home-title">
+        <div class="home-hero-content">
+            <h1 id="home-title">Sistema Eletrônico do Kombfusca</h1>
+            <p>Gerenciador Online unificado de informações de jogos, controle de pontuação, inscrições e anúncios de copas.</p>
+            @if (!SignInManager.IsSignedIn(User))
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn home-login">
+                    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                    Entrar com uma conta CAK
+                </a>
+            }
+        </div>
+        <div class="home-hero-mark" aria-hidden="true">
+            <i class="bi bi-trophy"></i>
+            <span>Um sistema oficial da <br /><strong>CAK</strong></span>
+        </div>
+    </section>
 
-<div class="container">
+    <section class="home-event" aria-labelledby="event-title">
+        <span class="home-event-icon"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+        <div class="home-event-details">
+            <span class="home-eyebrow">Calendário da CAK</span>
+            <h2 id="event-title">Próxima Copa</h2>
+            @if (nextCup != null)
+            {
+                <p class="home-event-name">@nextCup.Name</p>
+                <p>Início em <time datetime="@nextCup.StartDate.ToString("yyyy-MM-dd")">@nextCup.StartDate.ToString("dd/MM/yyyy")</time></p>
+            }
+            else
+            {
+                <p>Novas datas serão exibidas aqui quando houver um campeonato programado.</p>
+            }
+        </div>
+        @if (nextCup != null)
+        {
+            var daysRemaining = Math.Max(0, (nextCup.StartDate.Date - DateTime.Today).Days);
+            <span class="home-countdown">
+                @if (daysRemaining == 0)
+                {
+                    <strong>Hoje</strong>
+                    <span>é dia de campeonato</span>
+                }
+                else
+                {
+                    <strong>@daysRemaining</strong>
+                    <span>dia@(daysRemaining == 1 ? "" : "s")</span>
+                }
+            </span>
+        }
+    </section>
 
-    <div class="d-flex justify-content-center mb-4">
-        <a asp-area="Identity" asp-page="/Account/Login"
-           class="btn btn-outline-primary btn-lg px-4">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Entrar com uma conta CAK
-        </a>
-    </div>
-
-    @if (Model.Count() > 0)
-    {
-        var cup = Model.First();
-        var diasRestantes = (cup.StartDate - DateTime.Now).Days + 1;
-
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card border-secondary-subtle shadow-sm">
-                    <div class="card-body bg-light-subtle text-center py-4">
-                        <h6 class="text-secondary text-uppercase mb-2">Próximo campeonato</h6>
-                        <h3 class="text-primary-emphasis fw-semibold mb-3">@cup.Name</h3>
-                        <span class="badge bg-secondary fs-5 px-3 py-2">
-                            Falta@(diasRestantes == 1 ? "" : "m") @diasRestantes dia@(diasRestantes == 1 ? "" : "s")
-                        </span>
-                    </div>
-                </div>
+    <section class="home-services" aria-labelledby="services-title">
+        <div class="home-section-heading">
+            <div>
+                <span class="home-eyebrow">Acesso rápido</span>
+                <h2 id="services-title">O que você deseja acessar?</h2>
             </div>
         </div>
-    }
-
+        <div class="home-service-grid">
+            <a class="home-service" asp-area="" asp-controller="Home" asp-action="PlayerArea">
+                <span class="home-service-icon"><i class="bi bi-trophy" aria-hidden="true"></i></span>
+                <h3>Área do Competidor</h3>
+            </a>
+            <a class="home-service" asp-area="" asp-controller="Ads" asp-action="Index">
+                <span class="home-service-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
+                <h3>Central de Anunciantes</h3>
+            </a>
+            <a class="home-service" asp-area="" asp-controller="Certificates" asp-action="Validate">
+                <span class="home-service-icon"><i class="bi bi-patch-check" aria-hidden="true"></i></span>
+                <h3>Validação de Certificados</h3>
+            </a>
+        </div>
+    </section>
 </div>

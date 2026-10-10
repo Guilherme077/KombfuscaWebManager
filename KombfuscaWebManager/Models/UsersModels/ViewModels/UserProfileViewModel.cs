@@ -31,16 +31,15 @@ public class UserProfileViewModel
         foreach (var cup in model.Cups.AsEnumerable().Reverse())
         {
             if (cup.HasParticipated) model.TotalCups++;
+
+            if (cup.Status != CupStatus.finishedResultsAvailable) continue;
+
             if (cup.Position == 1) model.FirstPlaces++;
             if (cup.Position == 2) model.SecondPlaces++;
             if (cup.Position == 3) model.ThirdPlaces++;
 
-            // Ongoing cups do not alter the streak; an unpublished completed cup cannot establish a win.
-            if (cup.Status is CupStatus.finished or CupStatus.finishedResultsAvailable)
-            {
-                model.CurrentWinStreak = cup.Position == 1 ? model.CurrentWinStreak + 1 : 0;
-                model.BestWinStreak = Math.Max(model.BestWinStreak, model.CurrentWinStreak);
-            }
+            model.CurrentWinStreak = cup.Position == 1 ? model.CurrentWinStreak + 1 : 0;
+            model.BestWinStreak = Math.Max(model.BestWinStreak, model.CurrentWinStreak);
 
             if (!cup.Position.HasValue) continue;
             if (!cup.HasPreciseVehicles)
