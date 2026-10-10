@@ -191,7 +191,7 @@ namespace KombfuscaWebManager.Controllers
             var cup = await _context.Cups.FindAsync(model.CupId);
             if (cup != null)
             {
-                cup.cupStatus = CupStatus.finishedResultsAvailable;
+                cup.cupStatus = CupStatus.finished;
             }
 
             await _context.SaveChangesAsync();
