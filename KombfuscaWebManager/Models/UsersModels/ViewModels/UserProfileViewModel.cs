@@ -61,6 +61,7 @@ public class UserProfileCupViewModel
     public int CupId { get; init; }
     public string Name { get; init; } = "";
     public DateTime StartDate { get; init; }
+    public String Place { get; init; } = "";
     public CupStatus Status { get; init; }
     public int? Position { get; init; }
     public int? TotalScore { get; init; }

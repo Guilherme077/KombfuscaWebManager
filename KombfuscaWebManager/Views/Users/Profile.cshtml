@@ -52,10 +52,10 @@
 
     <section class="profile-panel" aria-labelledby="vehicles-heading">
         <div class="profile-section-heading">
-            <h2 id="vehicles-heading"><i class="bi bi-car-front" aria-hidden="true"></i> Todos os veículos vistos</h2>
+            <h2 id="vehicles-heading"><i class="bi bi-car-front" aria-hidden="true"></i> Em Toda a Carreira...</h2>
             @if (Model.VehicleCups > 0)
             {
-                <span class="profile-chip">@Model.VehicleCups copas contabilizadas</span>
+                <span class="profile-chip">@Model.VehicleCups copas consideradas</span>
             }
         </div>
         @if (Model.VehicleCups > 0)
@@ -108,6 +108,7 @@
                         <div class="profile-cup-name">
                             <h3>@cup.Name</h3>
                             <span><i class="bi bi-calendar3" aria-hidden="true"></i> @cup.StartDate.ToString("dd/MM/yyyy")</span>
+                            <span><i class="bi bi-geo-alt" aria-hidden="true"></i> @cup.Place</span>
                         </div>
                         <div class="profile-cup-result">
                             @if (cup.Position.HasValue)

@@ -24,7 +24,10 @@
                     Ano: @firstResult?.CupYear <br />
                 </small>
                 <small class="text-muted" style="font-size: 1rem;">
-                    Local: @firstResult?.CupPlace
+                    Local: @firstResult?.CupPlace <br />
+                </small>
+                <small class="text-muted" style="font-size: 1rem;">
+                    Data: @firstResult?.CupStartDate.ToString("dd/MM/yyyy") - @firstResult?.CupEndDate.ToString("dd/MM/yyyy")
                 </small>
             </div>
         </div>

@@ -15,6 +15,8 @@ namespace KombfuscaWebManager.Models.CupModels.ViewModels
         public int CupId { get; set; }
         public string CupName { get; set; }
         public string CupPlace { get; set; }
+        public DateTime CupStartDate { get; set; }
+        public DateTime CupEndDate { get; set; }
         public int CupYear { get; set; }
         public DateTime GeneratedAt { get; set; }
         public string UserId { get; set; } = string.Empty;

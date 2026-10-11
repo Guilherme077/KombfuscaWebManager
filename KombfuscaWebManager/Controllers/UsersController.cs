@@ -48,6 +48,7 @@ namespace KombfuscaWebManager.Controllers
                     CupId = cup.Id,
                     Name = cup.Name,
                     StartDate = cup.StartDate,
+                    Place = cup.Placename,
                     Status = cup.cupStatus,
                     Position = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.Position : null,
                     TotalScore = cup.cupStatus == CupStatus.finishedResultsAvailable && result != null ? (int?)result.TotalScore : null,

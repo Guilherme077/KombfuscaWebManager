@@ -1,7 +1,10 @@
 ﻿@using KombfuscaWebManager.Models.SystemModels.ViewModels
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 @model PlayerAreaViewModel
 @{
     ViewData["Title"] = "Área do Competidor";
+    var user = await UserManager.GetUserAsync(User);
 }
 
 <style>
@@ -236,7 +239,7 @@
     </div>
 
     <section class="mb-5">
-        <h2 class="section-title">Acesso</h2>
+        <h2 class="section-title">Em Destaque</h2>
         <div class="row g-4">
             @foreach(var cup in Model.CupsToSubscription)
             {
@@ -285,6 +288,27 @@
                 </div>
             </div>
 
+            <div class="col-lg-3 col-md-6">
+                <div class="card action-card">
+                    <div class="card-header" style="background: #d9bc00; background: linear-gradient(135deg, rgba(217, 188, 0, 1) 16%, rgba(0, 117, 207, 1) 86%); justify-content: center;">
+                        <div style="text-align: center; color: white;">
+                            <i class="bi bi-trophy-fill card-icon"></i>
+                            <h5 style="margin: 0;">Meu Perfil</h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted" style="font-size: 0.95rem;">
+                            Resumo de toda sua carreira nas Copas Kombfusca.
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a asp-area="" asp-controller="Users" asp-action="Profile" asp-route-id="@user?.Id" class="btn btn-action btn-view-scores">
+                            Acessar Perfil Público
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             
         </div>
     </section>
@@ -328,11 +352,11 @@
                         <ul class="list-unstyled">
                             <li class="mb-2">
                                 <strong>Como baixar o certificado?</strong>
-                                <p class="text-muted small">Você pode baixar seu certificado de copas a partir de 2026 no seu histórico de pontuações, acessando a copa desejada.</p>
+                                <p class="text-muted small">Você pode baixar seu certificado digital de copas a partir de 2026 em 'ver pontuações' acima.</p>
                             </li>
                             <li class="mb-2">
                                 <strong>Porque não posso baixar certificados de algumas copas?</strong>
-                                <p class="text-muted small">A emissão de certificados só é feita pelo sistema a partir da atualização de 2026. Em copas anteriores, seu certificado impresso continua válido.</p>
+                                <p class="text-muted small">A emissão de certificados digitais só é feita pelo sistema a partir da atualização de 2026. Seu certificado impresso continua válido.</p>
                             </li>
                             <li class="mb-2">
                                 <strong>Fiz minha inscrição, e agora?</strong>
